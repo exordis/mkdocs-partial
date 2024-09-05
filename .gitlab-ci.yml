@@ -1,7 +1,7 @@
 variables:
   # entrypoint if any
   BUILD_DOCKER_ARG_ENTRYPOINT: mkdocs-partial
-  BUILD_DOCKER_ARG_VERSION_FILE: src/documentation_mkdocs_partial/version.py
+  BUILD_DOCKER_ARG_VERSION_FILE: documentation_mkdocs_partial/version.py
   BUILD_PUBLISH_DOCKER_IMAGE: true
   BUILD_DOCKER_ARG_COVERAGE_THRESHOLD: 0
   BUILD_FINAL_TARGET: "final-pyinstaller"
