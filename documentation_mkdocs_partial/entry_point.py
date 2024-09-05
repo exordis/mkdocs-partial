@@ -42,9 +42,8 @@ def run():
     )
     package_command.add_argument(
         "--output-dir",
-        help="Folder to write generated package file. Default - current directory",
+        help="Folder to write generated package file. Default - `--docs-dir` value directory name",
         required=False,
-        default=os.getcwd(),
         type=directory,
     )
     package_command.add_argument(
@@ -94,6 +93,8 @@ def add_command_parser(subparsers, name, help_text, func):
 def package(args):
     if args.site_dir is None:
         args.site_dir = os.path.basename(args.docs_dir)
+    if args.output_dir is None:
+        args.output_dir = args.docs_dir
     if args.package_name is None:
         args.package_name = PACKAGE_NAME_RESTRICTED_CHARS.sub("-", args.site_dir)
 
