@@ -3,8 +3,10 @@ import hashlib
 import inspect
 import logging
 import os
+import time
 import zipfile
 from abc import ABC
+from datetime import datetime
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
@@ -19,6 +21,9 @@ class Packager(ABC):
     def pack(
         self, docs_dir, site_dir, package_name, package_version, package_description, output_dir, edit_url_template
     ):
+        start=datetime.now()
+        logging.info(f"Building package {package_name} v{package_version} form folder {docs_dir}.")
+
         wheel_filename = os.path.join(output_dir, f"{package_name}-{package_version}-py3-none-any.whl")
         script_dir = os.path.dirname(os.path.realpath(__file__))
         resources_dir = os.path.join(script_dir, "templates")
@@ -62,7 +67,7 @@ class Packager(ABC):
 
             zipf.writestr(f"{dist_info_dir}/RECORD", "\n".join(record_lines) + "\n")
 
-        logging.info(f"Package file is written to {wheel_filename}")
+        logging.info(f"Package is built within {(datetime.now()-start)}. File is written to {wheel_filename}")
 
     @staticmethod
     def write_file(arcname, file_data, zipf):
