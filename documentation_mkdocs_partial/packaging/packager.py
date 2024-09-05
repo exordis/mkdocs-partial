@@ -64,7 +64,8 @@ class Packager(ABC):
 
         logging.info(f"Package file is written to {wheel_filename}")
 
-    def write_file(self, arcname, file_data, zipf):
+    @staticmethod
+    def write_file(arcname, file_data, zipf):
         sha256_hash = hashlib.sha256(file_data).hexdigest()
         file_size = len(file_data)
         with TemporaryFile("wb", delete_on_close=False) as file:

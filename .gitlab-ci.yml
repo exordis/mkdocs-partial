@@ -1,5 +1,4 @@
 variables:
-  # entrypoint if any
   BUILD_DOCKER_ARG_ENTRYPOINT: mkdocs-partial
   BUILD_DOCKER_ARG_VERSION_FILE: documentation_mkdocs_partial/version.py
   BUILD_PUBLISH_DOCKER_IMAGE: true
