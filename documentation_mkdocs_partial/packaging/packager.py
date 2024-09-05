@@ -21,7 +21,7 @@ class Packager(ABC):
     def pack(
         self, docs_dir, site_dir, package_name, package_version, package_description, output_dir, edit_url_template
     ):
-        start=datetime.now()
+        start = datetime.now()
         logging.info(f"Building package {package_name} v{package_version} form folder {docs_dir}.")
 
         wheel_filename = os.path.join(output_dir, f"{package_name}-{package_version}-py3-none-any.whl")
