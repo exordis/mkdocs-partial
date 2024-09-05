@@ -4,6 +4,7 @@ variables:
   BUILD_DOCKER_ARG_VERSION_FILE: documentation_mkdocs_partial/version.py
   BUILD_PUBLISH_DOCKER_IMAGE: true
   BUILD_DOCKER_ARG_COVERAGE_THRESHOLD: 0
+  BUILD_DOCKER_ARG_PYINSTALLER_EXTRA_ARGS: "--collect-all jinja2"
   BUILD_FINAL_TARGET: "final-pyinstaller"
 include:
   - project: $GITLAB_CICD_TEMPLATES_PROJECT_PATH
