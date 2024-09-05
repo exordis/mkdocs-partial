@@ -6,7 +6,7 @@ import os
 import zipfile
 from abc import ABC
 from pathlib import Path
-from tempfile import TemporaryFile
+from tempfile import NamedTemporaryFile
 
 from documentation_mkdocs_partial import version
 from documentation_mkdocs_partial.report_base import ReportBase
@@ -68,7 +68,7 @@ class Packager(ABC):
     def write_file(arcname, file_data, zipf):
         sha256_hash = hashlib.sha256(file_data).hexdigest()
         file_size = len(file_data)
-        with TemporaryFile("wb", delete_on_close=False) as file:
+        with NamedTemporaryFile("wb", delete_on_close=False) as file:
             file.write(file_data)
             file.close()
             zipf.write(file.name, arcname)
