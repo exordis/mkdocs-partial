@@ -1,0 +1,48 @@
+[MASTER]
+ignore-paths=
+    test/,
+    local/,
+    build/,
+    env/,
+    venv/,
+    .pytest_cache/,
+    .git/,
+    .idea/
+
+
+[MESSAGES CONTROL]
+disable=
+    fixme,
+    attribute-defined-outside-init,
+    missing-docstring,
+    protected-access,
+    too-few-public-methods,
+    missing-module-docstring,
+    missing-class-docstring,
+    missing-function-docstring,
+    too-many-instance-attributes,
+    too-many-locals,
+    no-else-return,
+    unspecified-encoding,
+    too-many-arguments,
+    too-many-nested-blocks,
+    too-many-branches,
+    logging-fstring-interpolation,
+    too-many-statements
+
+
+[FORMAT]
+max-line-length=120
+
+[REPORTS]
+output-format=colorized
+
+[SIMILARITIES]
+# min-similarity= (more than the default 4 ?)
+ignore-imports=yes
+
+[BASIC]
+good-names=
+    e,
+    ci,
+    id
