@@ -10,12 +10,3 @@ include:
   - project: $GITLAB_CICD_TEMPLATES_PROJECT_PATH
     ref: master
     file: 'lib-python.yml'
-    
-    
-    
-
-    
-    
-    
-    
-    
