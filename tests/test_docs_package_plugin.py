@@ -9,7 +9,7 @@ from documentation_mkdocs_partial.docs_package_plugin import DocsPackagePlugin, 
     [
         ("", "/docs/file.md", "file.md"),
         ("", "/docs/subfolder/file.md", "subfolder/file.md"),
-        ("directory", "/docs/subfolder/file.md", "root/subfolder/file.md"),
+        ("directory", "/docs/subfolder/file.md", "directory/subfolder/file.md"),
     ],
     ids=["No root, no subfolder", "No root, has subfolder", "Root and subfolder"],
 )
