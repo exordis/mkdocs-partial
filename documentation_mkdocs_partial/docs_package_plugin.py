@@ -62,9 +62,8 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         return files
 
     def add_md_file(self, file_path, files: Files, config):
-        path = os.path.relpath(file_path, self.__docs_path)
         md = frontmatter.loads(Path(file_path).read_text(encoding="utf8"))
-        src_uri = f"{self.__root}/{path}".replace("\\", "/")
+        src_uri = self.get_src_uri(file_path)
         existing_file = files.src_uris.get(src_uri, None)
         if existing_file is not None:
             existing = frontmatter.loads(existing_file.content_string)
@@ -78,6 +77,10 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         files.append(file)
         self.__files.append(file)
 
+    def get_src_uri(self, file_path):
+        path = os.path.relpath(file_path, self.__docs_path)
+        return os.path.join(self.__root,path).replace("\\", "/").lstrip('/')
+
     def on_page_context(self, context, page, config, **kwargs):
         path = os.path.relpath(page.file.src_path, self.config.root)
         if self.__edit_url_template is not None and page.file in self.__files:
@@ -88,7 +91,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         files.append(
             File.generated(
                 config=config,
-                src_uri=f"{self.__root}/{os.path.relpath(path, self.__docs_path)}",
+                src_uri = self.get_src_uri(path),
                 content=Path(path).read_bytes(),
             )
         )
