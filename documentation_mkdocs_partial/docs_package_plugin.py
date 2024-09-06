@@ -79,7 +79,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
 
     def get_src_uri(self, file_path):
         path = os.path.relpath(file_path, self.__docs_path)
-        return os.path.join(self.__root,path).replace("\\", "/").lstrip('/')
+        return os.path.join(self.__root, path).replace("\\", "/").lstrip("/")
 
     def on_page_context(self, context, page, config, **kwargs):
         path = os.path.relpath(page.file.src_path, self.config.root)
@@ -91,7 +91,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         files.append(
             File.generated(
                 config=config,
-                src_uri = self.get_src_uri(path),
+                src_uri=self.get_src_uri(path),
                 content=Path(path).read_bytes(),
             )
         )
