@@ -24,7 +24,7 @@ class Packager(ABC):
         logging.info(f"Building package {package_name} v{package_version} form folder {docs_dir}.")
         module_name = MODULE_NAME_RESTRICTED_CHARS.sub("_", package_name.lower())
 
-        wheel_filename = os.path.join(output_dir, f"{package_name}-{package_version}-py3-none-any.whl")
+        wheel_filename = os.path.join(output_dir, f"{module_name}-{package_version}-py3-none-any.whl")
         script_dir = os.path.dirname(os.path.realpath(__file__))
         resources_dir = os.path.join(script_dir, "templates")
         report = ReportBase(templates_dir=resources_dir, output_path=None)
@@ -36,7 +36,6 @@ class Packager(ABC):
                 f"{dist_info_dir}/METADATA": "METADATA.j2",
                 f"{dist_info_dir}/WHEEL": "WHEEL.j2",
                 f"{dist_info_dir}/entry_points.txt": "entry_points.txt.j2",
-                "setup.py": "setup.py.j2",
                 f"{module_name}/__init__.py": "__init__.py.j2",
                 f"{module_name}/plugin.py": "plugin.py.j2",
             }
@@ -49,11 +48,12 @@ class Packager(ABC):
                     package_name=package_name,
                     module_name=module_name,
                     package_version=package_version,
-                    dependency=f'{inspect.getmodule(version).__name__.split(".")[0]} >= {version.__version__}',
+                    dependency=f'{inspect.getmodule(version).__name__.split(".")[0]} >={version.__version__}',
                     root="None" if site_dir is None else f'"{site_dir}"',
                     edit_url_template="None" if edit_url_template is None else f'"{edit_url_template}"',
                     package_description=package_description,
                 )
+                content.replace("\r\n", "\n")
                 file_data = bytes(content, "utf8")
                 record_line = self.write_file(path, file_data, zipf)
                 if not path.startswith(dist_info_dir):
