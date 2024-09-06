@@ -1,13 +1,10 @@
 import logging
 import os
-import re
 import sys
 from argparse import ArgumentParser, ArgumentTypeError
 
+from documentation_mkdocs_partial import PACKAGE_NAME, PACKAGE_NAME_RESTRICTED_CHARS
 from documentation_mkdocs_partial.packaging.packager import Packager
-
-PACKAGE_NAME_RESTRICTED_CHARS = re.compile(r"[^A-Za-z0-9+_-]")
-PACKAGE_NAME = re.compile(r"^[A-Za-z0-9+_-]+$")
 
 
 def directory(value):
