@@ -39,6 +39,9 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
 
         if self.config.directory is not None:
             self.__directory = self.config.directory
+        if self.__directory is None:
+            self.__directory = ""
+        self.__directory = self.__directory.rstrip("/")
 
         if self.config.edit_url_template is not None:
             self.__edit_url_template = self.config.edit_url_template
@@ -77,14 +80,12 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         files.append(file)
         self.__files.append(file)
 
-    def get_src_uri(self, file_path):
-        path = os.path.relpath(file_path, self.__docs_path)
-        return os.path.join(self.__directory, path).replace("\\", "/").lstrip("/")
-
     def on_page_context(self, context, page, config, **kwargs):
+        if page.file not in self.__files:
+            return context
         path = os.path.relpath(page.file.src_path, self.config.directory)
         if self.__edit_url_template is not None and page.file in self.__files:
-            page.edit_url = str(self.__edit_url_template).format(path=path)
+            page.edit_url = str(self.__edit_url_template).format(path=self.get_edit_url_template_path(path))
         return context
 
     def add_media_file(self, path, files, config):
@@ -95,3 +96,10 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
                 content=Path(path).read_bytes(),
             )
         )
+
+    def get_src_uri(self, file_path):
+        path = os.path.relpath(file_path, self.__docs_path)
+        return os.path.join(self.__directory, path).replace("\\", "/").lstrip("/")
+
+    def get_edit_url_template_path(self, path):
+        return os.path.relpath(path, self.__directory).replace("\\", "/")
