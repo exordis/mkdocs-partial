@@ -18,7 +18,7 @@ class Packager(ABC):
         pass
 
     def pack(
-        self, docs_dir, site_dir, package_name, package_version, package_description, output_dir, edit_url_template
+        self, docs_dir, directory, package_name, package_version, package_description, output_dir, edit_url_template
     ):
         start = datetime.now()
         logging.info(f"Building package {package_name} v{package_version} form folder {docs_dir}.")
@@ -49,7 +49,7 @@ class Packager(ABC):
                     module_name=module_name,
                     package_version=package_version,
                     dependency=f'{inspect.getmodule(version).__name__.split(".")[0]} >={version.__version__}',
-                    root="None" if site_dir is None else f'"{site_dir}"',
+                    root="None" if directory is None else f'"{directory}"',
                     edit_url_template="None" if edit_url_template is None else f'"{edit_url_template}"',
                     package_description=package_description,
                 )

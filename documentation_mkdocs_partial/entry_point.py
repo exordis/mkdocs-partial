@@ -32,20 +32,22 @@ def run():
     )
     package_command.add_argument(
         "--docs-dir",
-        help="Folder with documentation. Default - current directory",
+        help="Folder with documentation to be packaged." "Default - current directory",
         required=False,
         default=os.getcwd(),
         type=directory,
     )
     package_command.add_argument(
         "--output-dir",
-        help="Folder to write generated package file. Default - `--docs-dir` value directory name",
+        help="Folder to write generated package file. " "Default - `--docs-dir` value directory name",
         required=False,
         type=directory,
     )
     package_command.add_argument(
-        "--site-dir",
-        help="Path in target documentation to inject documentation. " "Default - `--docs-dir` value directory name",
+        "--directory",
+        help="Path in target documentation to inject documentation, relative to target `doc_dir`. "
+        "Pass empty string to inject files directly to target `docs_dir`"
+        "Default - `--docs-dir` value directory name",
         required=False,
     )
     package_command.add_argument(
@@ -88,16 +90,16 @@ def add_command_parser(subparsers, name, help_text, func):
 
 
 def package(args):
-    if args.site_dir is None:
-        args.site_dir = os.path.basename(args.docs_dir)
+    if args.directory is None:
+        args.directory = os.path.basename(args.docs_dir)
     if args.output_dir is None:
         args.output_dir = args.docs_dir
     if args.package_name is None:
-        args.package_name = PACKAGE_NAME_RESTRICTED_CHARS.sub("-", args.site_dir)
+        args.package_name = PACKAGE_NAME_RESTRICTED_CHARS.sub("-", args.directory)
 
     Packager().pack(
         docs_dir=args.docs_dir,
-        site_dir=args.site_dir,
+        directory=args.directory,
         package_name=args.package_name,
         package_version=args.package_version,
         package_description=args.package_description,
