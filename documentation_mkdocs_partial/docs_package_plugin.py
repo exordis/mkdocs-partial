@@ -16,7 +16,7 @@ from mkdocs.structure.files import File, Files
 
 class DocsPackagePluginConfig(Config):
     docs_path = config_options.Optional(config_options.Type(str))
-    root = config_options.Optional(config_options.Type(str))
+    directory = config_options.Optional(config_options.Type(str))
     edit_url_template = config_options.Optional(config_options.Type(str))
 
 
@@ -25,11 +25,11 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
     H1_TITLE = re.compile(r"^#[^#]", flags=re.MULTILINE)
     TITLE = re.compile(r"^#", flags=re.MULTILINE)
 
-    def __init__(self, root=None, edit_url_template=None):
+    def __init__(self, directory=None, edit_url_template=None):
         script_dir = os.path.dirname(os.path.realpath(inspect.getfile(self.__class__)))
         resources_dir = os.path.join(script_dir, "docs")
         self.__docs_path = resources_dir
-        self.__root = root
+        self.__directory = directory
         self.__edit_url_template = edit_url_template
         self.__files: list[File] = []
 
@@ -37,8 +37,8 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         if self.config.docs_path is not None:
             self.__docs_path = self.config.docs_path
 
-        if self.config.root is not None:
-            self.__root = self.config.root
+        if self.config.directory is not None:
+            self.__directory = self.config.directory
 
         if self.config.edit_url_template is not None:
             self.__edit_url_template = self.config.edit_url_template
@@ -79,10 +79,10 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
 
     def get_src_uri(self, file_path):
         path = os.path.relpath(file_path, self.__docs_path)
-        return os.path.join(self.__root, path).replace("\\", "/").lstrip("/")
+        return os.path.join(self.__directory, path).replace("\\", "/").lstrip("/")
 
     def on_page_context(self, context, page, config, **kwargs):
-        path = os.path.relpath(page.file.src_path, self.config.root)
+        path = os.path.relpath(page.file.src_path, self.config.directory)
         if self.__edit_url_template is not None and page.file in self.__files:
             page.edit_url = str(self.__edit_url_template).format(path=path)
         return context

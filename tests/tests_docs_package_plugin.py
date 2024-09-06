@@ -14,7 +14,7 @@ from documentation_mkdocs_partial.docs_package_plugin import DocsPackagePlugin, 
     ids=["No root, no subfolder", "No root, has subfolder", "Root and subfolder"],
 )
 def test_get_src_uri(root, path, expected_src_uri):
-    plugin = DocsPackagePlugin(root=root)
+    plugin = DocsPackagePlugin(directory=root)
     plugin.config = DocsPackagePluginConfig()
     plugin.config.docs_path = "/docs"
     plugin.on_config(MkDocsConfig())
