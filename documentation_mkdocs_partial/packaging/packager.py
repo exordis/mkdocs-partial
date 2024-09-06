@@ -30,7 +30,7 @@ class Packager(ABC):
         report = ReportBase(templates_dir=resources_dir, output_path=None)
 
         with zipfile.ZipFile(wheel_filename, "w") as zipf:
-            dist_info_dir = f"{package_name}-{package_version}.dist-info"
+            dist_info_dir = f"{module_name}-{package_version}.dist-info"
 
             wheel_files = {
                 f"{dist_info_dir}/METADATA": "METADATA.j2",
