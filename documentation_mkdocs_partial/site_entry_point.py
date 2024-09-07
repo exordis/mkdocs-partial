@@ -71,7 +71,7 @@ class SiteEntryPoint(ABC):
             current_dir = os.getcwd()
             try:
                 os.chdir(site_root)
-                mkdocs_serve_command(argv)  # pylint: disable=too-many-function-args
+                mkdocs_build_command(argv)  # pylint: disable=too-many-function-args
             finally:
                 os.chdir(current_dir)
 
@@ -90,7 +90,7 @@ class SiteEntryPoint(ABC):
             current_dir = os.getcwd()
             try:
                 os.chdir(site_root)
-                mkdocs_build_command(argv)  # pylint: disable=too-many-function-args
+                mkdocs_serve_command(argv)  # pylint: disable=too-many-function-args
             finally:
                 os.chdir(current_dir)
 

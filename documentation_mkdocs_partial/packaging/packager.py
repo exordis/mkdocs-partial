@@ -32,7 +32,7 @@ class Packager(ABC):
         **kwargs,
     ):
         start = datetime.now()
-        logging.info(f"Building docs package {package_name} v{package_version} form folder {resources_src_dir}.")
+        logging.info(f"Building package {package_name} v{package_version} form folder {resources_src_dir}.")
         module_name = MODULE_NAME_RESTRICTED_CHARS.sub("_", package_name.lower())
 
         wheel_filename = os.path.join(output_dir, f"{module_name}-{package_version}-py3-none-any.whl")
