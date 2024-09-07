@@ -34,8 +34,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
 
     def __init__(self, directory=None, edit_url_template=None):
         script_dir = os.path.dirname(os.path.realpath(inspect.getfile(self.__class__)))
-        resources_dir = os.path.join(script_dir, "docs")
-        self.__docs_path = resources_dir
+        self.__docs_path = os.path.join(script_dir, "docs")
         self.__directory = directory
         self.__edit_url_template = edit_url_template
         self.__files: list[File] = []

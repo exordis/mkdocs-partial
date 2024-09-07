@@ -1,5 +1,4 @@
 # pylint: disable=unused-argument
-import importlib
 from typing import Callable, List, cast
 
 from mkdocs.config import Config, config_options
@@ -67,11 +66,7 @@ class PartialDocsPlugin(BasePlugin[PartialDocsPluginConfig]):
     # Load doc package plugins
     def _load(self, option: Plugins) -> List[tuple[str, DocsPackagePlugin]]:
         for entrypoint in option.installed_plugins.values():
-            modname, qualname_separator, qualname = entrypoint.value.partition(":")
-            plugin_class = importlib.import_module(modname)
-            if qualname_separator:
-                for attr in qualname.split("."):
-                    plugin_class = getattr(plugin_class, attr)
+            plugin_class = entrypoint.load()
             if issubclass(plugin_class, DocsPackagePlugin) and plugin_class != DocsPackagePlugin:
                 plugin_config = {}
                 if entrypoint.name in self.config.packages:
