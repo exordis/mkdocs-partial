@@ -51,7 +51,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             self.__edit_url_template = self.config.edit_url_template
 
     def on_serve(
-            self, server: LiveReloadServer, /, *, config: MkDocsConfig, builder: Callable
+        self, server: LiveReloadServer, /, *, config: MkDocsConfig, builder: Callable
     ) -> LiveReloadServer | None:
         if self.config.docs_path != "":
             server.watch(self.__docs_path, recursive=True)
