@@ -9,8 +9,10 @@ from datetime import datetime
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
+from documentation_reporting.markdown_extension import TemplaterMarkdownExtension
+from documentation_reporting.templater import Templater
+
 from documentation_mkdocs_partial import MODULE_NAME_RESTRICTED_CHARS, version
-from documentation_mkdocs_partial.report_base import ReportBase
 
 
 class Packager(ABC):
@@ -27,7 +29,7 @@ class Packager(ABC):
         wheel_filename = os.path.join(output_dir, f"{module_name}-{package_version}-py3-none-any.whl")
         script_dir = os.path.dirname(os.path.realpath(__file__))
         resources_dir = os.path.join(script_dir, "templates")
-        report = ReportBase(templates_dir=resources_dir, output_path=None)
+        templater = Templater(templates_dir=resources_dir).extend(TemplaterMarkdownExtension())
 
         with zipfile.ZipFile(wheel_filename, "w") as zipf:
             dist_info_dir = f"{module_name}-{package_version}.dist-info"
@@ -42,7 +44,7 @@ class Packager(ABC):
 
             record_lines = []
             for path, template in wheel_files.items():
-                content = report.write_template(
+                content = templater.template(
                     template,
                     # name=path,
                     package_name=package_name,
