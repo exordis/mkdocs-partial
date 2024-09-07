@@ -10,8 +10,10 @@ import frontmatter
 from mkdocs.config import Config, config_options
 from mkdocs.config.defaults import MkDocsConfig
 from mkdocs.livereload import LiveReloadServer
-from mkdocs.plugins import BasePlugin
+from mkdocs.plugins import BasePlugin, get_plugin_logger
 from mkdocs.structure.files import File, Files
+
+log = get_plugin_logger(__name__)
 
 
 class DocsPackagePluginConfig(Config):
