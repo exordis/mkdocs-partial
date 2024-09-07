@@ -25,6 +25,10 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
     H1_TITLE = re.compile(r"^#[^#]", flags=re.MULTILINE)
     TITLE = re.compile(r"^#", flags=re.MULTILINE)
 
+    @property
+    def directory(self):
+        return self.__directory
+
     def __init__(self, directory=None, edit_url_template=None):
         script_dir = os.path.dirname(os.path.realpath(inspect.getfile(self.__class__)))
         resources_dir = os.path.join(script_dir, "docs")
@@ -47,7 +51,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             self.__edit_url_template = self.config.edit_url_template
 
     def on_serve(
-        self, server: LiveReloadServer, /, *, config: MkDocsConfig, builder: Callable
+            self, server: LiveReloadServer, /, *, config: MkDocsConfig, builder: Callable
     ) -> LiveReloadServer | None:
         if self.config.docs_path != "":
             server.watch(self.__docs_path, recursive=True)
