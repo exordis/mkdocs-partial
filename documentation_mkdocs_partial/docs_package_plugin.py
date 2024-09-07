@@ -15,6 +15,7 @@ from mkdocs.structure.files import File, Files
 
 
 class DocsPackagePluginConfig(Config):
+    enabled = config_options.Type(bool, default=True)
     docs_path = config_options.Optional(config_options.Type(str))
     directory = config_options.Optional(config_options.Type(str))
     edit_url_template = config_options.Optional(config_options.Type(str))
@@ -38,6 +39,8 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         self.__files: list[File] = []
 
     def on_config(self, _: MkDocsConfig) -> MkDocsConfig | None:
+        if not self.config.enabled:
+            return
         if self.config.docs_path is not None:
             self.__docs_path = self.config.docs_path
 
@@ -53,11 +56,17 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
     def on_serve(
         self, server: LiveReloadServer, /, *, config: MkDocsConfig, builder: Callable
     ) -> LiveReloadServer | None:
+        if not self.config.enabled:
+            return server
+
         if self.config.docs_path != "":
             server.watch(self.__docs_path, recursive=True)
         return server
 
     def on_files(self, files: Files, /, *, config: MkDocsConfig) -> Files | None:
+        if not self.config.enabled:
+            return files
+
         self.__files = []
         if not os.path.isdir(self.__docs_path):
             return files
