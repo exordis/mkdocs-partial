@@ -92,6 +92,8 @@ class Packager(ABC):
                 *[glob.glob(os.path.join(resources_src_dir, exclude), recursive=True) for exclude in excludes]
             )
             excluded = [Packager.normalize_path(exclude) for exclude in excluded]
+            for exclude in excluded:
+                logging.info(f"Excluding file {exclude}")
             for file in glob.glob(os.path.join(resources_src_dir, "**/*"), recursive=True):
                 file = Packager.normalize_path(file)
                 if os.path.isfile(file) and file not in excluded:
