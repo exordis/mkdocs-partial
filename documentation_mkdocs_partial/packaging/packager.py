@@ -89,14 +89,20 @@ class Packager(ABC):
                         record_lines.append(record_line)
 
             excluded = chain(
-                *[glob.glob(os.path.join(resources_src_dir, exclude), recursive=True) for exclude in excludes]
+                *[
+                    glob.glob(Packager.normalize_path(os.path.join(resources_src_dir, exclude)), recursive=True)
+                    for exclude in excludes
+                ]
             )
             excluded = [Packager.normalize_path(exclude) for exclude in excluded]
+            for exclude in excludes:
+                logging.info(f"Excluded glob {Packager.normalize_path(os.path.join(resources_src_dir, exclude))}")
             for exclude in excluded:
                 logging.info(f"Excluding file {exclude}")
             for file in glob.glob(os.path.join(resources_src_dir, "**/*"), recursive=True):
                 file = Packager.normalize_path(file)
                 if os.path.isfile(file) and file not in excluded:
+                    logging.info(f"Packaging file {file}")
                     path = module_name
                     if resources_package_dir is not None and resources_package_dir != "":
                         path = os.path.join(path, resources_package_dir)
