@@ -137,6 +137,8 @@ def package(args):
         resources_package_dir="docs",
         directory="None" if args.directory is None else f'"{args.directory}"',
         edit_url_template="None" if args.edit_url_template is None else f'"{args.edit_url_template}"',
+        requirements="requirements.txt",
+        excludes=["requirements.txt", "requirements.txt.j2"] + args.exclude,
     )
     return True, None
 
