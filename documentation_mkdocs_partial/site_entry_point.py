@@ -110,4 +110,4 @@ class SiteEntryPoint(ABC):
 
 
 if __name__ == "__main__":
-    SiteEntryPoint(site_root=r"d:\CODE\tmp\site").run()
+    SiteEntryPoint(site_root=r"d:\CODE\cy\subsystems\documentation\docs-site-documentation-inceptum").run()
