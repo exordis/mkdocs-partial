@@ -30,25 +30,18 @@ def run():
     package_command = add_command_parser(
         subparsers, "package", "Creates partial documentation package from directory", func=package
     )
-    package_command.add_argument(
-        "--source-dir",
-        required=False,
-        default=os.getcwd(),
-        type=directory,
-        help="Folder with documentation to be packaged. Default - current directory",
-    )
 
+    add_packager_args(
+        package_command,
+        package_name_extra_help=" Default - normalized `--directory` value directory name.",
+        output_dir_extra_help=" Default - `--source-dir` value directory name.",
+    )
     package_command.add_argument(
         "--directory",
         required=False,
         help="Path in target documentation to inject documentation, relative to mkdocs `doc_dir`. "
         "Pass empty string to inject files directly to mkdocs `docs_dir`"
         "Default - `--source-dir` value directory name",
-    )
-    add_packager_args(
-        package_command,
-        package_name_extra_help=" Default - normalized `--directory` value directory name.",
-        output_dir_extra_help=" Default - `--source-dir` value directory name.",
     )
     package_command.add_argument(
         "--edit-url-template",
@@ -60,13 +53,7 @@ def run():
     site_package_command = add_command_parser(
         subparsers, "site-package", "Creates documentation site-package package from  directory", func=site_package
     )
-    site_package_command.add_argument(
-        "--source-dir",
-        required=False,
-        default=os.getcwd(),
-        type=directory,
-        help="Folder with documentation to be packaged. Default - current directory",
-    )
+
     add_packager_args(
         site_package_command,
         package_name_extra_help=" Default - `--source-dir` value directory name.",
@@ -97,7 +84,19 @@ def add_command_parser(subparsers, name, help_text, func):
     return command_parser
 
 
-def add_packager_args(parser, package_name_extra_help="", output_dir_extra_help=""):
+def add_packager_args(
+    parser,
+    source_dir_help="Directory to be packaged. Default - current directory",
+    package_name_extra_help="",
+    output_dir_extra_help="",
+):
+    parser.add_argument(
+        "--source-dir",
+        required=False,
+        default=os.getcwd(),
+        type=directory,
+        help=source_dir_help,
+    )
     parser.add_argument(
         "--package-name",
         required=False,
@@ -110,7 +109,14 @@ def add_packager_args(parser, package_name_extra_help="", output_dir_extra_help=
         "--output-dir",
         required=False,
         type=directory,
-        help=f"Folder to write generated package file.{output_dir_extra_help}",
+        help=f"Directory to write generated package file.{output_dir_extra_help}",
+    )
+    parser.add_argument(
+        "--exclude",
+        action="append",
+        required=False,
+        default=[],
+        help="Exclude glob (should be relative to directory provided with `--source-dir` ",
     )
 
 
@@ -149,7 +155,7 @@ def site_package(args):
         output_dir=args.output_dir,
         resources_package_dir="site",
         requirements="requirements.txt",
-        excludes=["requirements.txt"],
+        excludes=["requirements.txt"] + args.exclude,
     )
     return True, None
 
