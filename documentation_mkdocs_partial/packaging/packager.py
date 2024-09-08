@@ -54,8 +54,10 @@ class Packager(ABC):
                 requirements = os.path.join(resources_src_dir, requirements)
             if os.path.isfile(requirements):
                 with open(requirements) as f_requirements:
-                    dependencies = [line.rstrip("\n").rstrip("\r") for line in f_requirements.readlines()]
-                    dependencies = [dependency for dependency in dependencies if not dependency.isspace()]
+                    dependencies = [line.strip("\n\r ") for line in f_requirements.readlines()]
+                    dependencies = [
+                        dependency for dependency in dependencies if not dependency.isspace() and dependency != ""
+                    ]
         if add_self_dependency:
             dependencies.append(f'{inspect.getmodule(version).__name__.split(".")[0]} >={version.__version__}')
 
