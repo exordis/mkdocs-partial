@@ -33,7 +33,9 @@ class Packager(ABC):
         requirements=None,
         **kwargs,
     ):
+        resources_src_dir= os.path.abspath(resources_src_dir)
         resources_src_dir = Packager.normalize_path(resources_src_dir)
+
         output_dir = Packager.normalize_path(output_dir)
         if excludes is None:
             excludes = []
