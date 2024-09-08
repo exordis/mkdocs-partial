@@ -6,6 +6,7 @@ import os
 import zipfile
 from abc import ABC
 from datetime import datetime
+from itertools import chain
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
@@ -26,11 +27,16 @@ class Packager(ABC):
         package_description,
         output_dir,
         resources_src_dir,
+        excludes=None,
         resources_package_dir=None,
         add_self_dependency=True,
         requirements=None,
         **kwargs,
     ):
+        resources_src_dir = Packager.normalize_path(resources_src_dir)
+        output_dir = Packager.normalize_path(output_dir)
+        if excludes is None:
+            excludes = []
         start = datetime.now()
         logging.info(f"Building package {package_name} v{package_version} form folder {resources_src_dir}.")
         module_name = MODULE_NAME_RESTRICTED_CHARS.sub("_", package_name.lower())
@@ -82,18 +88,27 @@ class Packager(ABC):
                     if record:
                         record_lines.append(record_line)
 
+            excluded = chain(
+                *[glob.glob(os.path.join(resources_src_dir, exclude), recursive=True) for exclude in excludes]
+            )
+            excluded = [Packager.normalize_path(exclude) for exclude in excluded]
             for file in glob.glob(os.path.join(resources_src_dir, "**/*"), recursive=True):
-                if os.path.isfile(file):
+                file = Packager.normalize_path(file)
+                if os.path.isfile(file) and file not in excluded:
                     path = module_name
                     if resources_package_dir is not None and resources_package_dir != "":
                         path = os.path.join(path, resources_package_dir)
                     path = os.path.join(path, os.path.relpath(file, resources_src_dir))
-                    path = path.replace("\\", "/")
+                    path = Packager.normalize_path(path)
                     record_lines.append(self.write_file(path, Path(file).read_bytes(), zipf))
 
             zipf.writestr(f"{dist_info_dir}/RECORD", "\n".join(record_lines) + "\n")
 
         logging.info(f"Package is built within {(datetime.now() - start)}. File is written to {wheel_filename}")
+
+    @staticmethod
+    def normalize_path(path: str) -> str:
+        return os.path.normpath(path).replace("\\", "/")
 
     @staticmethod
     def write_file(arcname, file_data, zipf):

@@ -149,6 +149,7 @@ def site_package(args):
         output_dir=args.output_dir,
         resources_package_dir="site",
         requirements="requirements.txt",
+        excludes=["requirements.txt"],
     )
     return True, None
 

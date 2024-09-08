@@ -33,10 +33,14 @@ class SiteEntryPoint(ABC):
 
         parser = ArgumentParser()
         subparsers = parser.add_subparsers(help="commands")
-        serve_command = self.add_command_parser(subparsers, "serve", "", func=self.serve)
+        serve_command = self.add_command_parser(
+            subparsers, "serve", "", func=lambda args, argv: self.mkdocs(mkdocs_serve_command, args, argv)
+        )
         serve_command.add_argument("--local-docs")
 
-        self.add_command_parser(subparsers, "build", "", func=self.build)
+        self.add_command_parser(
+            subparsers, "build", "", func=lambda args, argv: self.mkdocs(mkdocs_build_command, args, argv)
+        )
 
         args, argv = parser.parse_known_args()
 
@@ -55,28 +59,15 @@ class SiteEntryPoint(ABC):
 
         sys.exit(0 if success else 1)
 
-    def add_command_parser(self, subparsers, name, help_text, func):
+    @staticmethod
+    def add_command_parser(subparsers, name, help_text, func):
         command_parser = subparsers.add_parser(name, help=help_text)
         command_parser.set_defaults(func=func, commandName=name)
         return command_parser
 
-    def build(self, args, argv):  # pylint: disable=unused-argument
+    def mkdocs(self, command, args, argv):
         with TemporaryDirectory() as site_root:
-            for file in glob.glob(os.path.join(self.__site_root, "**/*"), recursive=True):
-                path = os.path.relpath(file, self.__site_root).replace("\\", "/")
-                path = os.path.join(site_root, path).replace("\\", "/")
-                Path(os.path.dirname(path)).mkdir(parents=True, exist_ok=True)
-                if os.path.isfile(file):
-                    shutil.copyfile(file, path)
-            current_dir = os.getcwd()
-            try:
-                os.chdir(site_root)
-                mkdocs_build_command(argv)  # pylint: disable=too-many-function-args
-            finally:
-                os.chdir(current_dir)
-
-    def serve(self, args, argv):
-        with TemporaryDirectory() as site_root:
+            mkdocs_yaml = "docs"
             for file in glob.glob(os.path.join(self.__site_root, "**/*"), recursive=True):
                 path = os.path.relpath(file, self.__site_root).replace("\\", "/")
                 is_mkdocs_yaml = path.lower() == "mkdocs.yml"
@@ -86,38 +77,36 @@ class SiteEntryPoint(ABC):
                     if not is_mkdocs_yaml:
                         shutil.copyfile(file, path)
                     else:
-                        self.write_mkdocs_yaml(args, file, path)
+                        mkdocs_yaml = self.write_mkdocs_yaml(args, file, path)
             current_dir = os.getcwd()
+
+            docs_dir = mkdocs_yaml.get("docs_dir", "docs")
             try:
                 os.chdir(site_root)
-                mkdocs_serve_command(argv)  # pylint: disable=too-many-function-args
+                Path(docs_dir).mkdir(parents=True, exist_ok=True)
+                command(argv)  # pylint: disable=too-many-function-args
             finally:
                 os.chdir(current_dir)
 
-    def write_mkdocs_yaml(self, args, source, path):
+    @staticmethod
+    def write_mkdocs_yaml(args, source, path):
         with open(source) as stream:
-            try:
-                # TODO: ars to override doc package docs_dir for local documentation writing
-                logging.info(args.local_docs)
-                source = yaml.safe_load(stream)
-                if "plugins" not in source:
-                    source["plugins"] = []
-                plugins: List = source["plugins"]
-                partial_docs = next(
-                    (
-                        plugin["partial_docs"]
-                        for plugin in plugins
-                        if isinstance(plugin, dict) and "partial_docs" in plugin
-                    ),
-                    None,
-                )
-                if partial_docs is None:
-                    partial_docs = {}
-                    plugins.append({"partial_docs": partial_docs})
-                with open(path, "w") as target:
-                    yaml.dump(source, target)
-            except yaml.YAMLError as exc:
-                print(exc)
+            # TODO: ars to override doc package docs_dir for local documentation writing
+            logging.info(args.local_docs)
+            source = yaml.safe_load(stream)
+            if "plugins" not in source:
+                source["plugins"] = []
+            plugins: List = source["plugins"]
+            partial_docs = next(
+                (plugin["partial_docs"] for plugin in plugins if isinstance(plugin, dict) and "partial_docs" in plugin),
+                None,
+            )
+            if partial_docs is None:
+                partial_docs = {}
+                plugins.append({"partial_docs": partial_docs})
+            with open(path, "w") as target:
+                yaml.dump(source, target)
+            return source
 
 
 if __name__ == "__main__":
