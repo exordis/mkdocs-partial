@@ -18,7 +18,7 @@ def test_get_src_uri(directory, path, expected_src_uri):
     plugin.config = DocsPackagePluginConfig()
     plugin.config.docs_path = "/docs"
     plugin.on_config(MkDocsConfig())
-    assert plugin.get_src_uri(path) == expected_src_uri
+    assert plugin.get_src_uri(path)[0] == expected_src_uri
 
 
 @pytest.mark.parametrize(
