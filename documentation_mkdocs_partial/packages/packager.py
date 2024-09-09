@@ -6,14 +6,18 @@ import os
 import zipfile
 from abc import ABC
 from datetime import datetime
+from importlib.metadata import entry_points
 from itertools import chain
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+from typing import List
 
 from documentation_reporting.markdown_extension import TemplaterMarkdownExtension
 from documentation_reporting.templater import Templater
+from packaging.requirements import Requirement
 
 from documentation_mkdocs_partial import MODULE_NAME_RESTRICTED_CHARS, version
+from documentation_mkdocs_partial.docs_package_plugin import DocsPackagePlugin
 
 
 class Packager(ABC):
@@ -30,7 +34,8 @@ class Packager(ABC):
         excludes=None,
         resources_package_dir=None,
         add_self_dependency=True,
-        requirements=None,
+        requirements_path=None,
+        freeze=False,
         **kwargs,
     ):
         resources_src_dir = os.path.abspath(resources_src_dir)
@@ -48,26 +53,26 @@ class Packager(ABC):
         templates_dir = os.path.join(script_dir, os.path.join("templates", self.__templates_dir))
         templater = Templater(templates_dir=templates_dir).extend(TemplaterMarkdownExtension())
 
-        dependencies = []
-        if requirements:
-            if not os.path.isfile(requirements):
-                requirements = os.path.join(resources_src_dir, requirements)
-            if os.path.isfile(requirements):
-                with open(requirements) as f_requirements:
-                    dependencies = [line.strip("\n\r ") for line in f_requirements.readlines()]
-                    dependencies = [
-                        dependency for dependency in dependencies if not dependency.isspace() and dependency != ""
-                    ]
-        if add_self_dependency:
-            dependencies.append(f'{inspect.getmodule(version).__name__.split(".")[0]} >={version.__version__}')
+        requirements = []
+        if requirements_path is not None:
+            if not os.path.isfile(requirements_path) and not os.path.isabs(requirements_path):
+                requirements_path = os.path.join(resources_src_dir, requirements_path)
+            if os.path.isfile(requirements_path):
+                requirements = self.parse_requirements(requirements_path)
 
+        if add_self_dependency:
+            requirements.append(
+                Requirement(f'{inspect.getmodule(version).__name__.split(".")[0]} >={version.__version__}')
+            )
+        if freeze:
+            requirements = Packager.freeze_requirements(requirements)
         args = {**kwargs}
         args.update(
             {
                 "package_name": package_name,
                 "module_name": module_name,
                 "package_version": package_version,
-                "dependencies": dependencies,
+                "requirements": requirements,
                 "package_description": package_description,
             }
         )
@@ -132,3 +137,34 @@ class Packager(ABC):
             file.close()
             zipf.write(file.name, arcname)
         return f"{arcname},sha256={sha256_hash},{file_size}"
+
+    @staticmethod
+    def parse_requirements(path):
+        with open(path) as f_requirements:
+            requirements = [
+                Requirement(dependency)
+                for dependency in f_requirements.readlines()
+                if not dependency.isspace() and dependency != "" and dependency[0] != "#"
+            ]
+        return requirements
+
+    @staticmethod
+    def freeze(path):
+        requirements = Packager.parse_requirements(path)
+
+        with open(path, "w") as f_requirements:
+            for requirement in Packager.freeze_requirements(requirements):
+                f_requirements.write(f"{requirement}\n")
+        return True, None
+
+    @staticmethod
+    def freeze_requirements(requirements: List[Requirement]):
+        plugin_requirements = {}
+        for mkdocs_plugin in entry_points(group="mkdocs.plugins"):
+            plugin_class = mkdocs_plugin.load()
+            if issubclass(plugin_class, DocsPackagePlugin) and plugin_class != DocsPackagePlugin:
+                plugin_requirements[mkdocs_plugin.dist.name] = Requirement(
+                    f"{mkdocs_plugin.dist.name}=={mkdocs_plugin.dist.version}"
+                )
+        for requirement in requirements:
+            yield plugin_requirements.get(requirement.name, requirement)

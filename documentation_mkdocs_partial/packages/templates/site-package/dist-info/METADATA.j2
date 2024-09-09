@@ -2,6 +2,6 @@ Metadata-Version: 2.1
 Name: {{package_name}}
 Version: {{package_version}}
 Description: {{package_description}}
-{% for dependency in dependencies %}
-Requires-Dist: {{dependency}}
+{% for requirement in requirements %}
+Requires-Dist: {{requirement}}
 {% endfor %}

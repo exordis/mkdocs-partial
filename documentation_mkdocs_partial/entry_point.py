@@ -4,12 +4,18 @@ import sys
 from argparse import ArgumentParser, ArgumentTypeError
 
 from documentation_mkdocs_partial import PACKAGE_NAME, PACKAGE_NAME_RESTRICTED_CHARS
-from documentation_mkdocs_partial.packaging.packager import Packager
+from documentation_mkdocs_partial.packages.packager import Packager
 
 
 def directory(value):
     if not os.path.isdir(value):
         raise ArgumentTypeError("Must be an existing directory")
+    return value
+
+
+def file(value):
+    if not os.path.isfile(value):
+        raise ArgumentTypeError("Must be an existing file")
     return value
 
 
@@ -63,6 +69,15 @@ def run():
         site_package_command,
         package_name_extra_help=" Default - `--source-dir` value directory name.",
         output_dir_extra_help=" Default - `--source-dir` value directory name.",
+    )
+
+    freeze_command = add_command_parser(
+        subparsers, "freeze", "Pins doc package versions in requirements.txt to currently installed", func=freeze
+    )
+    freeze_command.add_argument(
+        "path",
+        type=file,
+        help="path to requirements.txt",
     )
 
     args = parser.parse_args()
@@ -123,6 +138,13 @@ def add_packager_args(
         default=[],
         help="Exclude glob (should be relative to directory provided with `--source-dir` ",
     )
+    parser.add_argument(
+        "--freeze",
+        dest="freeze",
+        action="store_true",
+        help="Pin doc package versions in requirements.txt to currently installed."
+        " (if there is no requirements.txt in `--source-dir` directory, has no effect)",
+    )
 
 
 def package(args):
@@ -140,7 +162,8 @@ def package(args):
         resources_src_dir=args.source_dir,
         output_dir=args.output_dir,
         resources_package_dir="docs",
-        requirements="requirements.txt",
+        requirements_path="requirements.txt",
+        freeze=args.freeze,
         excludes=["requirements.txt", "requirements.txt.j2"] + args.exclude,
         directory="None" if args.directory is None else f'"{args.directory}"',
         edit_url_template="None" if args.edit_url_template is None else f'"{args.edit_url_template}"',
@@ -162,9 +185,15 @@ def site_package(args):
         resources_src_dir=args.source_dir,
         output_dir=args.output_dir,
         resources_package_dir="site",
-        requirements="requirements.txt",
+        requirements_path="requirements.txt",
+        freeze=args.freeze,
         excludes=["requirements.txt", "requirements.txt.j2"] + args.exclude,
     )
+    return True, None
+
+
+def freeze(args):
+    Packager.freeze(args.path)
     return True, None
 
 
