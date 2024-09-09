@@ -46,7 +46,7 @@ def run():
     package_command.add_argument(
         "--title",
         required=False,
-        help="Title for the section created from `--directory` value",
+        help="Override title if defined in package root index.md",
     )
     package_command.add_argument(
         "--edit-url-template",

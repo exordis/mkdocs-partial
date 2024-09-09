@@ -39,7 +39,6 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         self.__directory = directory
         self.__edit_url_template = edit_url_template
         self.__files: list[File] = []
-        self.__index_file: File | None = None
 
     def on_config(self, _: MkDocsConfig) -> MkDocsConfig | None:
         if not self.config.enabled:
@@ -79,16 +78,6 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         for file_path in glob.glob(os.path.join(self.__docs_path, "**/*.png"), recursive=True):
             self.add_media_file(file_path, files, config)
 
-        if self.__index_file is None:
-            md = frontmatter.Post("")
-            if self.__title is not None:
-                md["title"] = self.__title
-            self.__index_file = File.generated(
-                config=config,
-                src_uri=os.path.join(self.__directory, "index.md").replace("\\", "/"),
-                content=frontmatter.dumps(md),
-            )
-            files.append(self.__index_file)
         return files
 
     def add_md_file(self, file_path, files: Files, config):
@@ -106,8 +95,6 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             md.metadata["title"] = self.__title
 
         file = File.generated(config=config, src_uri=src_uri, content=frontmatter.dumps(md))
-        if is_index:
-            self.__index_file = file
         files.append(file)
         self.__files.append(file)
 
