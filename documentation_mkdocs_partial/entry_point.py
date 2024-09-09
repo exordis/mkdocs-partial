@@ -44,6 +44,11 @@ def run():
         "Default - `--source-dir` value directory name",
     )
     package_command.add_argument(
+        "--title",
+        required=False,
+        help="Title for the section created from `--directory` value",
+    )
+    package_command.add_argument(
         "--edit-url-template",
         required=False,
         help="f-string template for page edit url with {path} as placeholder for markdown file  path "
@@ -135,10 +140,11 @@ def package(args):
         resources_src_dir=args.source_dir,
         output_dir=args.output_dir,
         resources_package_dir="docs",
-        directory="None" if args.directory is None else f'"{args.directory}"',
-        edit_url_template="None" if args.edit_url_template is None else f'"{args.edit_url_template}"',
         requirements="requirements.txt",
         excludes=["requirements.txt", "requirements.txt.j2"] + args.exclude,
+        directory="None" if args.directory is None else f'"{args.directory}"',
+        edit_url_template="None" if args.edit_url_template is None else f'"{args.edit_url_template}"',
+        title="None" if args.title is None else f'"{args.title}"',
     )
     return True, None
 

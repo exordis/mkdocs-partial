@@ -32,12 +32,14 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
     def directory(self):
         return self.__directory
 
-    def __init__(self, directory=None, edit_url_template=None):
+    def __init__(self, directory=None, edit_url_template=None, title=None):
+        self.__title = title
         script_dir = os.path.dirname(os.path.realpath(inspect.getfile(self.__class__)))
         self.__docs_path = os.path.join(script_dir, "docs")
         self.__directory = directory
         self.__edit_url_template = edit_url_template
         self.__files: list[File] = []
+        self.__index_file: File | None = None
 
     def on_config(self, _: MkDocsConfig) -> MkDocsConfig | None:
         if not self.config.enabled:
@@ -76,11 +78,22 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             self.add_md_file(file_path, files, config)
         for file_path in glob.glob(os.path.join(self.__docs_path, "**/*.png"), recursive=True):
             self.add_media_file(file_path, files, config)
+
+        if self.__index_file is None:
+            md = frontmatter.Post("")
+            if self.__title is not None:
+                md["title"] = self.__title
+            self.__index_file = File.generated(
+                config=config,
+                src_uri=os.path.join(self.__directory, "index.md").replace("\\", "/"),
+                content=frontmatter.dumps(md),
+            )
+            files.append(self.__index_file)
         return files
 
     def add_md_file(self, file_path, files: Files, config):
         md = frontmatter.loads(Path(file_path).read_text(encoding="utf8"))
-        src_uri = self.get_src_uri(file_path)
+        src_uri, is_index = self.get_src_uri(file_path)
         existing_file = files.src_uris.get(src_uri, None)
         if existing_file is not None:
             existing = frontmatter.loads(existing_file.content_string)
@@ -89,8 +102,12 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             meta.update(md.metadata)
             md = frontmatter.Post(content)
             md.metadata.update(meta)
+        if is_index and self.__title is not None:
+            md.metadata["title"] = self.__title
 
         file = File.generated(config=config, src_uri=src_uri, content=frontmatter.dumps(md))
+        if is_index:
+            self.__index_file = file
         files.append(file)
         self.__files.append(file)
 
@@ -106,14 +123,17 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         files.append(
             File.generated(
                 config=config,
-                src_uri=self.get_src_uri(path),
+                src_uri=self.get_src_uri(path)[0],
                 content=Path(path).read_bytes(),
             )
         )
 
     def get_src_uri(self, file_path):
+        is_index = False
         path = os.path.relpath(file_path, self.__docs_path)
-        return os.path.join(self.__directory, path).replace("\\", "/").lstrip("/")
+        if path.lower() == "index.md":
+            is_index = True
+        return os.path.join(self.__directory, path).replace("\\", "/").lstrip("/"), is_index
 
     def get_edit_url_template_path(self, path):
         return os.path.relpath(path, self.__directory).replace("\\", "/")
