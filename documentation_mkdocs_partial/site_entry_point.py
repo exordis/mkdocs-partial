@@ -36,7 +36,7 @@ class SiteEntryPoint(ABC):
         serve_command = self.add_command_parser(
             subparsers, "serve", "", func=lambda args, argv: self.mkdocs(mkdocs_serve_command, args, argv)
         )
-        serve_command.add_argument("--local-docs")
+        serve_command.add_argument("--local-docs", required=False)
 
         self.add_command_parser(
             subparsers, "build", "", func=lambda args, argv: self.mkdocs(mkdocs_build_command, args, argv)
@@ -89,10 +89,10 @@ class SiteEntryPoint(ABC):
                 os.chdir(current_dir)
 
     @staticmethod
-    def write_mkdocs_yaml(args, source, path):
+    def write_mkdocs_yaml(args, source, path):  # pylint: disable=unused-argument
         with open(source) as stream:
-            # TODO: ars to override doc package docs_dir for local documentation writing
-            logging.info(args.local_docs)
+            # TODO: args to override doc package docs_dir for local documentation writing
+            # logging.info(args.local_docs)
             source = yaml.safe_load(stream)
             if "plugins" not in source:
                 source["plugins"] = []
