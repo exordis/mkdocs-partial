@@ -22,6 +22,8 @@ class SiteEntryPoint(ABC):
         if site_root is None:
             script_dir = os.path.dirname(os.path.realpath(inspect.getfile(self.__class__)))
             self.__site_root = os.path.join(script_dir, "site")
+            logging.info(self.__class__)
+            logging.info(script_dir)
         else:
             self.__site_root = site_root
 
