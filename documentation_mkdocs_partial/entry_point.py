@@ -3,10 +3,9 @@ import os
 import sys
 from argparse import ArgumentParser, ArgumentTypeError
 
-from requests import __version__
-
 from documentation_mkdocs_partial import PACKAGE_NAME, PACKAGE_NAME_RESTRICTED_CHARS
 from documentation_mkdocs_partial.packages.packager import Packager
+from documentation_mkdocs_partial.version import __version__
 
 
 def directory(value):
