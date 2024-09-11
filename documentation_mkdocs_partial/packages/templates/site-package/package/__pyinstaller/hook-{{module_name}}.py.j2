@@ -3,7 +3,7 @@ from documentation_mkdocs_partial.packages.packager import Packager
 from itertools import chain
 
 not_hooked_packages=["mkdocs","pymdown-extensions","organisation_registry"]
-required_distributions= not_hooked_packages+ ["{{package_name}}",{% for requirement in requirements %}"{{ requirement.name }}",{% endfor %}]
+required_distributions= not_hooked_packages+ [ "{{package_name}}", {% for requirement in requirements %} "{{ requirement.name }}", {% endfor %} ]
 required_modules = Packager.get_mudules_from_packages(*required_distributions)
 
 datas=[]
