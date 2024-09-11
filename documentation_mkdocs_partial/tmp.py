@@ -1,5 +1,6 @@
 import os
 
+from documentation_mkdocs_partial.packages.packager import Packager
 from documentation_mkdocs_partial.site_entry_point import SiteEntryPoint
 from documentation_mkdocs_partial.version import __version__
 
@@ -11,3 +12,4 @@ def run():
 
 if __name__ == "__main__":
     run()
+    Packager.get_mudules_from_packages()

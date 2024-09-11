@@ -1,5 +1,6 @@
 import glob
 import hashlib
+import importlib
 import inspect
 import logging
 import os
@@ -61,9 +62,11 @@ class Packager(ABC):
                 requirements = self.parse_requirements(requirements_path)
 
         if add_self_dependency:
-            requirements.append(
-                Requirement(f'{inspect.getmodule(version).__name__.split(".")[0]} >={version.__version__}')
+            self_dependency = Requirement(
+                f'{inspect.getmodule(version).__name__.split(".")[0]} >={version.__version__}'
             )
+            requirements.append(self_dependency)
+
         if freeze:
             requirements = Packager.freeze_requirements(requirements)
         args = {**kwargs}
@@ -87,16 +90,18 @@ class Packager(ABC):
                 ("package", module_name, True),
             ]:
                 for file in glob.glob(os.path.join(templates_dir, templates_subdir, "**/*"), recursive=True):
-                    path = os.path.relpath(os.path.normpath(file), os.path.join(templates_dir, templates_subdir))
-                    path = os.path.join(wheel_subdir, path).replace("\\", "/")
-                    if path.lower().endswith(".j2"):
-                        path = path[:-3]
-                    content = templater.template(os.path.relpath(file, templates_dir).replace("\\", "/"), **args)
-                    content.replace("\r\n", "\n")
-                    file_data = bytes(content, "utf8")
-                    record_line = self.write_file(path, file_data, zipf)
-                    if record:
-                        record_lines.append(record_line)
+                    if os.path.isfile(file):
+                        path = os.path.relpath(os.path.normpath(file), os.path.join(templates_dir, templates_subdir))
+                        path = os.path.join(wheel_subdir, path).replace("\\", "/")
+                        path = templater.template_string(path, **args)
+                        if path.lower().endswith(".j2"):
+                            path = path[:-3]
+                        content = templater.template(os.path.relpath(file, templates_dir).replace("\\", "/"), **args)
+                        content.replace("\r\n", "\n")
+                        file_data = bytes(content, "utf8")
+                        record_line = self.write_file(path, file_data, zipf)
+                        if record:
+                            record_lines.append(record_line)
 
             excluded = chain(
                 *[
@@ -168,3 +173,47 @@ class Packager(ABC):
                 )
         for requirement in requirements:
             yield plugin_requirements.get(requirement.name, requirement)
+
+    @staticmethod
+    def get_mudules_from_packages(*packages: str):
+        installed_packages = list(chain(*[importlib.metadata.distributions(name=package) for package in packages]))
+        module_names = set()
+        for package in installed_packages:
+            distribution = importlib.metadata.distribution(package.metadata["Name"])
+            for file in distribution.files:
+                if (
+                    not file.name.endswith(".pyc")  # pylint: disable=too-many-boolean-expressions
+                    and "__pycache__" not in Path(file.name).parts
+                    and ".dist-info" not in Path(file.name).parts
+                    and not file.parts[0].endswith(".dist-info")
+                    and not file.parts[0].endswith(".egg-info")
+                    and ".." not in file.parts
+                ):
+                    module_name = file.parts[0]
+                    name, extension = os.path.splitext(module_name)
+                    if extension == ".py":
+                        module_name = name
+                        extension = ""
+                    if extension == "" and not name.startswith("_"):
+                        module_names.add(module_name)
+
+        return module_names
+
+
+if __name__ == "__main__":
+    modules = Packager.get_mudules_from_packages(
+        "mkdocs-material",
+        "mkdocs-glightbox",
+        "mkdocs-macros-plugin",
+        "mkdocs-spellcheck",
+        "documentation-mkdocs-landscape",
+        "documentation-mkdocs-plugins",
+        "docs-documentation-inceptum",
+        "docs-documentation",
+        "docs-cicd",
+        "docs-observability",
+        "docs-organisation",
+        "docs-infrastructure",
+        "documentation_mkdocs_partial",
+    )
+    print(modules)

@@ -1,0 +1,13 @@
+from PyInstaller.utils.hooks import collect_data_files
+from documentation_mkdocs_partial.packages.packager import Packager
+
+hiddenimports = ["{{module_name}}"]
+datas = collect_data_files('{{module_name}}', excludes=['__pyinstaller'])
+
+
+module_collection_mode = {
+    modules={}
+    for module in Packager.get_mudules_from_packages({% for requirement in requirements %}"{{ requirement.name }}",{% endfor %})):
+        modules[module]='py'
+    return modules
+}
