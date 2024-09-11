@@ -1,13 +1,16 @@
 from PyInstaller.utils.hooks import collect_data_files
 from documentation_mkdocs_partial.packages.packager import Packager
+from itertools import chain
 
-hiddenimports = ["{{module_name}}"]
-datas = collect_data_files('{{module_name}}', excludes=['__pyinstaller'])
+required_distributions= ["{{package_name}}",{% for requirement in requirements %}"{{ requirement.name }}",{% endfor %})]
+required_modules = Packager.get_mudules_from_packages(*required_distributions)
 
+datas=[]
+binaries=[]
+hiddenimports=[]
 
-module_collection_mode = {
-    modules={}
-    for module in Packager.get_mudules_from_packages({% for requirement in requirements %}"{{ requirement.name }}",{% endfor %})):
-        modules[module]='py'
-    return modules
-}
+for module in required_modules:
+    module_datas, module_binaries, module_hiddenimports = collect_all(module)
+    datas+=module_datas
+    binariess+=module_binaries
+    hiddenimports+=module_hiddenimports
