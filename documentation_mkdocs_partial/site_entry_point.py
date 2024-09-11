@@ -17,7 +17,8 @@ from mkdocs.__main__ import build_command as mkdocs_build_command, serve_command
 
 class SiteEntryPoint(ABC):
 
-    def __init__(self, site_root=None):
+    def __init__(self, version, site_root=None):
+        self.__version = version
         if site_root is None:
             script_dir = os.path.dirname(os.path.realpath(inspect.getfile(self.__class__)))
             self.__site_root = os.path.join(script_dir, "site")
@@ -31,7 +32,7 @@ class SiteEntryPoint(ABC):
             style="{",
         )
 
-        parser = ArgumentParser()
+        parser = ArgumentParser(description=f"v{self.__version}")
         subparsers = parser.add_subparsers(help="commands")
         serve_command = self.add_command_parser(
             subparsers, "serve", "", func=lambda args, argv: self.mkdocs(mkdocs_serve_command, args, argv)
@@ -107,7 +108,3 @@ class SiteEntryPoint(ABC):
             with open(path, "w") as target:
                 yaml.dump(source, target)
             return source
-
-
-if __name__ == "__main__":
-    SiteEntryPoint(site_root=r"d:\CODE\cy\subsystems\documentation\docs-site-documentation-inceptum").run()

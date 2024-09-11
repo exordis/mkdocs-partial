@@ -3,6 +3,8 @@ import os
 import sys
 from argparse import ArgumentParser, ArgumentTypeError
 
+from requests import __version__
+
 from documentation_mkdocs_partial import PACKAGE_NAME, PACKAGE_NAME_RESTRICTED_CHARS
 from documentation_mkdocs_partial.packages.packager import Packager
 
@@ -31,7 +33,7 @@ def run():
         format="{asctime} [{levelname}] {message}",
         style="{",
     )
-    parser = ArgumentParser()
+    parser = ArgumentParser(description=f"v{__version__}")
     subparsers = parser.add_subparsers(help="commands")
     package_command = add_command_parser(
         subparsers, "package", "Creates partial documentation package from directory", func=package
