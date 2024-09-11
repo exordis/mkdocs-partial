@@ -69,7 +69,9 @@ class SiteEntryPoint(ABC):
     def mkdocs(self, command, args, argv):
         with TemporaryDirectory() as site_root:
             mkdocs_yaml = "docs"
+            logging.info(f"site root: {self.__site_root}")
             for file in glob.glob(os.path.join(self.__site_root, "**/*"), recursive=True):
+                logging.info(f"\t{file}")
                 path = os.path.relpath(file, self.__site_root).replace("\\", "/")
                 is_mkdocs_yaml = path.lower() == "mkdocs.yml"
                 path = os.path.join(site_root, path).replace("\\", "/")
