@@ -1,8 +1,14 @@
-from PyInstaller.utils.hooks import collect_all
+from PyInstaller.utils.hooks import collect_all, copy_metadata
 from documentation_mkdocs_partial.packages.packager import Packager
 from itertools import chain
 
-required_distributions= ["{{package_name}}",{% for requirement in requirements %}"{{ requirement.name }}",{% endfor %}]
+not_hooked_packages=["mkdocs","pymdown-extensions","organisation_registry","symspellpy"]
+required_distributions= not_hooked_packages+ [
+    "{{package_name}}",
+{% for requirement in requirements %}
+    "{{requirement.name}}",
+{% endfor %}
+    ]
 required_modules = Packager.get_mudules_from_packages(*required_distributions)
 
 datas=[]
@@ -14,3 +20,7 @@ for module in required_modules:
     datas+=module_datas
     binaries+=module_binaries
     hiddenimports+=module_hiddenimports
+
+for distribution in required_distributions:
+    datas+=copy_metadata(distribution, recursive=True)
+
