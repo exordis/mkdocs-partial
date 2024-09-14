@@ -44,11 +44,9 @@ class SiteEntryPoint(ABC):
 
         parser = ArgumentParser(description=f"v{self.__version}")
         subparsers = parser.add_subparsers(help="commands")
-        serve_command = self.add_command_parser(
+        self.add_command_parser(
             subparsers, "serve", "", func=lambda args, argv: self.mkdocs(mkdocs_serve_command, args, argv)
         )
-        serve_command.add_argument("--local-docs", required=False, type=local_docs)
-        serve_command.add_argument("--site-root", required=False, type=directory)
 
         self.add_command_parser(
             subparsers, "build", "", func=lambda args, argv: self.mkdocs(mkdocs_build_command, args, argv)
@@ -75,6 +73,8 @@ class SiteEntryPoint(ABC):
     def add_command_parser(subparsers, name, help_text, func):
         command_parser = subparsers.add_parser(name, help=help_text)
         command_parser.set_defaults(func=func, commandName=name)
+        command_parser.add_argument("--local-docs", required=False, type=local_docs)
+        command_parser.add_argument("--site-root", required=False, type=directory)
         return command_parser
 
     def mkdocs(self, command, args, argv):
