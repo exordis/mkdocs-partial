@@ -183,7 +183,7 @@ def site_package(args):
 
 
 def freeze(args):
-    Packager.freeze(args.path)
+    Packager.freeze(args.__path)
     return True, None
 
 

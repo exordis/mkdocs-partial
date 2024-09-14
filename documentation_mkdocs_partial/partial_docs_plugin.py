@@ -1,6 +1,6 @@
 # pylint: disable=unused-argument
 import traceback
-from typing import Callable, List, cast
+from typing import Callable, Dict, List, cast
 
 from mkdocs.config import Config, config_options
 from mkdocs.config.config_options import Plugins
@@ -22,6 +22,7 @@ class PartialDocsPluginConfig(Config):
 
 
 class PartialDocsPlugin(BasePlugin[PartialDocsPluginConfig]):
+    docs_path_overrides: Dict[str, str] = {}
 
     def __init__(self):
         self.is_serve = False
@@ -41,6 +42,7 @@ class PartialDocsPlugin(BasePlugin[PartialDocsPluginConfig]):
     def on_config(self, config):
         if not self.config.enabled:
             return
+
         option: Plugins = cast(Plugins, dict(config._schema)["plugins"])
         assert isinstance(option, Plugins)
 
@@ -69,8 +71,13 @@ class PartialDocsPlugin(BasePlugin[PartialDocsPluginConfig]):
         for entrypoint in option.installed_plugins.values():
             plugin_class = entrypoint.load()
             if issubclass(plugin_class, DocsPackagePlugin) and plugin_class != DocsPackagePlugin:
-                plugin_config = self.config.packages.setdefault(entrypoint.name, DocsPackagePluginConfig()).data
-                name, plugin = option.load_plugin_with_namespace(entrypoint.name, plugin_config)
+                plugin_config: DocsPackagePluginConfig = self.config.packages.setdefault(
+                    entrypoint.name, DocsPackagePluginConfig()
+                )
+                if entrypoint.name in PartialDocsPlugin.docs_path_overrides:
+                    plugin_config.docs_path = PartialDocsPlugin.docs_path_overrides[entrypoint.name]
+
+                name, plugin = option.load_plugin_with_namespace(entrypoint.name, plugin_config.data)
                 yield name, cast(DocsPackagePlugin, plugin)
 
     def _get_plugin(self, method: Callable):

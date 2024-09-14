@@ -1,21 +1,18 @@
 # pylint: disable=duplicate-code
-import glob
 import inspect
 import logging
 import os
-import shutil
 import sys
 from abc import ABC
 from argparse import ArgumentParser, ArgumentTypeError
 from pathlib import Path
-from tempfile import TemporaryDirectory
-from typing import Dict, List
 
 import yaml
 from mkdocs.__main__ import build_command as mkdocs_build_command, serve_command as mkdocs_serve_command
 
 from documentation_mkdocs_partial.packages.argparse_types import directory
 from documentation_mkdocs_partial.packages.packager import Packager
+from documentation_mkdocs_partial.partial_docs_plugin import PartialDocsPlugin
 
 
 def local_docs(value: str):
@@ -33,16 +30,15 @@ class SiteEntryPoint(ABC):
         self.__version = version
         if site_root is None:
             script_dir = os.path.dirname(os.path.realpath(inspect.getfile(self.__class__)))
-            self.__site_root = os.path.join(script_dir, "site")
+            self.__default_site_root = os.path.join(script_dir, "site")
         else:
-            self.__site_root = site_root
+            self.__default_site_root = site_root
         logging.basicConfig(
             level=logging.INFO,
             format="{asctime} [{levelname}] {message}",
             style="{",
         )
         self.logger = logging.getLogger(__name__)
-        self.logger.info(f"script_dir: {self.__site_root}")
 
     def run(self):
 
@@ -82,55 +78,35 @@ class SiteEntryPoint(ABC):
         return command_parser
 
     def mkdocs(self, command, args, argv):
-        with TemporaryDirectory() as site_root:
-            mkdocs_yaml = {}
-            self.logger.error(f"site root: {self.__site_root}")
-            for file in glob.glob(os.path.join(self.__site_root, "**/*"), recursive=True):
-                self.logger.info(f"\t{file}")
-                path = os.path.relpath(file, self.__site_root).replace("\\", "/")
-                is_mkdocs_yaml = path.lower() == "mkdocs.yml"
-                path = os.path.join(site_root, path).replace("\\", "/")
-                Path(os.path.dirname(path)).mkdir(parents=True, exist_ok=True)
-                if os.path.isfile(file):
-                    if not is_mkdocs_yaml:
-                        shutil.copyfile(file, path)
-                    else:
-                        mkdocs_yaml = self.write_mkdocs_yaml(args, file, path)
-            current_dir = os.getcwd()
 
-            docs_dir = mkdocs_yaml.get("docs_dir", "docs")
-            try:
-                os.chdir(site_root)
-                Path(docs_dir).mkdir(parents=True, exist_ok=True)
-                command(argv)  # pylint: disable=too-many-function-args
-            finally:
-                os.chdir(current_dir)
+        site_root_path = args.site_root
+        if site_root_path is None:
+            site_root_path = self.__default_site_root
 
-    @staticmethod
-    def write_mkdocs_yaml(args, source, path):  # pylint: disable=unused-argument
-        with open(source) as stream:
-            # TODO: args to override doc package docs_dir for local documentation writing
-            # logging.info(args.local_docs)
-            source = yaml.safe_load(stream)
-            if "plugins" not in source:
-                source["plugins"] = []
-            plugins: List = source["plugins"]
-            partial_docs = next(
-                (plugin["partial_docs"] for plugin in plugins if isinstance(plugin, dict) and "partial_docs" in plugin),
-                None,
-            )
-            if partial_docs is None:
-                partial_docs: Dict = {}
-                plugins.append({"partial_docs": partial_docs})
-            if args.local_docs is not None:
-                plugin, docs_path = args.local_docs
-                plugin = partial_docs.setdefault("packages", {}).setdefault(plugin, {})
-                plugin["docs_path"] = docs_path
+        self.logger.info(f"site root: {site_root_path}")
+        mkdocs_yaml_path = os.path.join(site_root_path, "mkdocs.yml")
+        if not os.path.isfile(mkdocs_yaml_path):
+            return False, "Site root does not have mkdocs.yml"
+        with open(mkdocs_yaml_path) as file:
+            mkdocs_yaml = yaml.safe_load(file)
+        plugins = mkdocs_yaml.get("plugins", [])
+        if not any("partial_docs" in plugin for plugin in plugins):
+            return False, f"{mkdocs_yaml_path} must define 'partial_docs' plugin"
 
-            with open(path, "w") as target:
-                yaml.dump(source, target)
-            return source
+        if args.local_docs is not None:
+            plugin, docs_path = args.local_docs
+            PartialDocsPlugin.docs_path_overrides[plugin] = docs_path
+
+        current_dir = os.getcwd()
+        os.chdir(site_root_path)
+        try:
+            os.chdir(site_root_path)
+            Path(site_root_path).mkdir(parents=True, exist_ok=True)
+            command(argv)  # pylint: disable=too-many-function-args
+        finally:
+            os.chdir(current_dir)
+        return False, ""
 
 
 if __name__ == "__main__":
-    SiteEntryPoint("1.0", site_root=r"d:\CODE\cy\subsystems\documentation\docs-site-documentation-inceptum").run()
+    SiteEntryPoint("1.0").run()
