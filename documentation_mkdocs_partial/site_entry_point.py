@@ -6,13 +6,27 @@ import os
 import shutil
 import sys
 from abc import ABC
-from argparse import ArgumentParser
+from argparse import ArgumentParser, ArgumentTypeError
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import List
+from typing import Dict, List
 
 import yaml
 from mkdocs.__main__ import build_command as mkdocs_build_command, serve_command as mkdocs_serve_command
+
+from documentation_mkdocs_partial.packages.packager import Packager
+
+
+def local_docs(value: str):
+    values = value.split("=", maxsplit=1)
+    plugin = values[0]
+    if len(values) > 1:
+        path = values[1]
+    else:
+        path = "/docs"
+    if not os.path.isdir(path):
+        raise ArgumentTypeError(f"directory '{path}' for plugin '{plugin}' does not exist")
+    return plugin, Packager.normalize_path(path)
 
 
 class SiteEntryPoint(ABC):
@@ -38,7 +52,7 @@ class SiteEntryPoint(ABC):
         serve_command = self.add_command_parser(
             subparsers, "serve", "", func=lambda args, argv: self.mkdocs(mkdocs_serve_command, args, argv)
         )
-        serve_command.add_argument("--local-docs", required=False)
+        serve_command.add_argument("--local-docs", required=False, type=local_docs)
 
         self.add_command_parser(
             subparsers, "build", "", func=lambda args, argv: self.mkdocs(mkdocs_build_command, args, argv)
@@ -69,7 +83,7 @@ class SiteEntryPoint(ABC):
 
     def mkdocs(self, command, args, argv):
         with TemporaryDirectory() as site_root:
-            mkdocs_yaml = "docs"
+            mkdocs_yaml = {}
             logging.info(f"site root: {self.__site_root}")
             for file in glob.glob(os.path.join(self.__site_root, "**/*"), recursive=True):
                 logging.info(f"\t{file}")
@@ -106,8 +120,17 @@ class SiteEntryPoint(ABC):
                 None,
             )
             if partial_docs is None:
-                partial_docs = {}
+                partial_docs: Dict = {}
                 plugins.append({"partial_docs": partial_docs})
+            if args.local_docs is not None:
+                plugin, docs_path = args.local_docs
+                plugin = partial_docs.setdefault("packages", {}).setdefault(plugin, {})
+                plugin["docs_path"] = docs_path
+
             with open(path, "w") as target:
                 yaml.dump(source, target)
             return source
+
+
+if __name__ == "__main__":
+    SiteEntryPoint("1.0", site_root=r"d:\CODE\cy\subsystems\documentation\docs-site-documentation-inceptum").run()

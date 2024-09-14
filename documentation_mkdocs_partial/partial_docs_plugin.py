@@ -1,4 +1,5 @@
 # pylint: disable=unused-argument
+import traceback
 from typing import Callable, List, cast
 
 from mkdocs.config import Config, config_options
@@ -52,8 +53,8 @@ class PartialDocsPlugin(BasePlugin[PartialDocsPluginConfig]):
                         src = f" from source path '{plugin.config.docs_path}'"
                     log.info(f"Injecting doc package {name} to '{plugin.directory}' directory{src}.")
                     plugins[name] = plugin
-        except Exception as e:
-            raise PluginError(str(e))  # pylint: disable=raise-missing-from
+        except Exception:
+            raise PluginError(traceback.format_exc())  # pylint: disable=raise-missing-from
 
         # Invoke `on_startup`
         command = "serve" if self.is_serve else "build"
@@ -68,9 +69,7 @@ class PartialDocsPlugin(BasePlugin[PartialDocsPluginConfig]):
         for entrypoint in option.installed_plugins.values():
             plugin_class = entrypoint.load()
             if issubclass(plugin_class, DocsPackagePlugin) and plugin_class != DocsPackagePlugin:
-                plugin_config = {}
-                if entrypoint.name in self.config.packages:
-                    plugin_config = self.config.packages[entrypoint.name].data
+                plugin_config = self.config.packages.setdefault(entrypoint.name, DocsPackagePluginConfig()).data
                 name, plugin = option.load_plugin_with_namespace(entrypoint.name, plugin_config)
                 yield name, cast(DocsPackagePlugin, plugin)
 
