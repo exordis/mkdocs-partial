@@ -77,6 +77,9 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             self.add_md_file(file_path, files, config)
         for file_path in glob.glob(os.path.join(self.__docs_path, "**/*.png"), recursive=True):
             self.add_media_file(file_path, files, config)
+        known_words = os.path.join(self.__docs_path, "known_words.txt")
+        if os.path.isfile(known_words):
+            self.add_media_file(known_words, files, config)
 
         return files
 
