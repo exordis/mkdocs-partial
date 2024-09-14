@@ -1,7 +1,9 @@
 # pylint: disable=duplicate-code
+import glob
 import inspect
 import logging
 import os
+import shutil
 import sys
 from abc import ABC
 from argparse import ArgumentParser, ArgumentTypeError
@@ -10,6 +12,7 @@ from pathlib import Path
 import yaml
 from mkdocs.__main__ import build_command as mkdocs_build_command, serve_command as mkdocs_serve_command
 
+from documentation_mkdocs_partial.entry_point import add_command_parser
 from documentation_mkdocs_partial.packages.argparse_types import directory
 from documentation_mkdocs_partial.packages.packager import Packager
 from documentation_mkdocs_partial.partial_docs_plugin import PartialDocsPlugin
@@ -44,12 +47,23 @@ class SiteEntryPoint(ABC):
 
         parser = ArgumentParser(description=f"v{self.__version}")
         subparsers = parser.add_subparsers(help="commands")
-        self.add_command_parser(
-            subparsers, "serve", "", func=lambda args, argv: self.mkdocs(mkdocs_serve_command, args, argv)
+        self.add_mkdocs_command_parser(
+            subparsers,
+            "serve",
+            "execute mkdocs serve",
+            func=lambda args, argv: self.mkdocs(mkdocs_serve_command, args, argv),
         )
 
-        self.add_command_parser(
-            subparsers, "build", "", func=lambda args, argv: self.mkdocs(mkdocs_build_command, args, argv)
+        self.add_mkdocs_command_parser(
+            subparsers,
+            "build",
+            "execute mkdocs build",
+            func=lambda args, argv: self.mkdocs(mkdocs_build_command, args, argv),
+        )
+
+        dump_command = self.add_command_parser(subparsers, "dump", "dump site files to the dir", func=self.dump)
+        dump_command.add_argument(
+            "--output", required=False, type=directory, help="Output directory. Default - Current directory"
         )
 
         args, argv = parser.parse_known_args()
@@ -73,6 +87,11 @@ class SiteEntryPoint(ABC):
     def add_command_parser(subparsers, name, help_text, func):
         command_parser = subparsers.add_parser(name, help=help_text)
         command_parser.set_defaults(func=func, commandName=name)
+        return command_parser
+
+    @staticmethod
+    def add_mkdocs_command_parser(subparsers, name, help_text, func):
+        command_parser = add_command_parser(subparsers, name, help_text, func)
         command_parser.add_argument("--local-docs", required=False, type=local_docs)
         command_parser.add_argument("--site-root", required=False, type=directory)
         return command_parser
@@ -107,6 +126,25 @@ class SiteEntryPoint(ABC):
             os.chdir(current_dir)
         return False, ""
 
+    def dump(self, args, argv):  # pylint: disable=unused-argument
+        output = args.output
+        if output is None:
+            output = os.getcwd()
+        output = Packager.normalize_path(output)
+
+        for path in glob.glob(os.path.join(self.__default_site_root, "**/*"), recursive=True):
+            path = Packager.normalize_path(path)
+            dest = os.path.relpath(path, self.__default_site_root)
+            dest = os.path.join(output, dest)
+            dest = Packager.normalize_path(dest)
+            if os.path.isdir(path):
+                os.makedirs(dest, exist_ok=True)
+            else:
+                os.makedirs(os.path.dirname(dest), exist_ok=True)
+                shutil.copy(path, dest)
+
+        return True, ""
+
 
 if __name__ == "__main__":
-    SiteEntryPoint("1.0").run()
+    SiteEntryPoint("1.0", r"d:\CODE\cy\subsystems\documentation\docs-site-documentation-inceptum").run()
