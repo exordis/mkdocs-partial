@@ -91,7 +91,6 @@ class Packager(ABC):
             ]:
                 for file in glob.glob(os.path.join(templates_dir, templates_subdir, "**/*"), recursive=True):
                     if os.path.isfile(file):
-                        logging.info(f"Packaging file {file}. args: {args}")
                         path = os.path.relpath(os.path.normpath(file), os.path.join(templates_dir, templates_subdir))
                         path = os.path.join(wheel_subdir, path).replace("\\", "/")
                         path = templater.template_string(path, **args)
