@@ -20,10 +20,7 @@ from documentation_mkdocs_partial.packages.packager import Packager
 def local_docs(value: str):
     values = value.split("=", maxsplit=1)
     plugin = values[0]
-    if len(values) > 1:
-        path = values[1]
-    else:
-        path = "/docs"
+    path = "/docs" if len(values) <= 1 else values[1]
     if not os.path.isdir(path):
         raise ArgumentTypeError(f"directory '{path}' for plugin '{plugin}' does not exist")
     return plugin, Packager.normalize_path(path)
