@@ -14,6 +14,7 @@ from typing import Dict, List
 import yaml
 from mkdocs.__main__ import build_command as mkdocs_build_command, serve_command as mkdocs_serve_command
 
+from documentation_mkdocs_partial.packages.argparse_types import directory
 from documentation_mkdocs_partial.packages.packager import Packager
 
 
@@ -35,14 +36,15 @@ class SiteEntryPoint(ABC):
             self.__site_root = os.path.join(script_dir, "site")
         else:
             self.__site_root = site_root
-        logging.info(f"script_dir: {self.__site_root}")
-
-    def run(self):
         logging.basicConfig(
             level=logging.INFO,
             format="{asctime} [{levelname}] {message}",
             style="{",
         )
+        self.logger = logging.getLogger(__name__)
+        self.logger.info(f"script_dir: {self.__site_root}")
+
+    def run(self):
 
         parser = ArgumentParser(description=f"v{self.__version}")
         subparsers = parser.add_subparsers(help="commands")
@@ -50,6 +52,7 @@ class SiteEntryPoint(ABC):
             subparsers, "serve", "", func=lambda args, argv: self.mkdocs(mkdocs_serve_command, args, argv)
         )
         serve_command.add_argument("--local-docs", required=False, type=local_docs)
+        serve_command.add_argument("--site-root", required=False, type=directory)
 
         self.add_command_parser(
             subparsers, "build", "", func=lambda args, argv: self.mkdocs(mkdocs_build_command, args, argv)
@@ -67,7 +70,7 @@ class SiteEntryPoint(ABC):
             elif message is not None:
                 print(message)
         except Exception as e:  # pylint: disable=broad-exception-caught
-            logging.exception(f"FAIL! {e}")
+            self.logger.exception(f"FAIL! {e}")
             success = False
 
         sys.exit(0 if success else 1)
@@ -81,9 +84,9 @@ class SiteEntryPoint(ABC):
     def mkdocs(self, command, args, argv):
         with TemporaryDirectory() as site_root:
             mkdocs_yaml = {}
-            logging.info(f"site root: {self.__site_root}")
+            self.logger.error(f"site root: {self.__site_root}")
             for file in glob.glob(os.path.join(self.__site_root, "**/*"), recursive=True):
-                logging.info(f"\t{file}")
+                self.logger.info(f"\t{file}")
                 path = os.path.relpath(file, self.__site_root).replace("\\", "/")
                 is_mkdocs_yaml = path.lower() == "mkdocs.yml"
                 path = os.path.join(site_root, path).replace("\\", "/")

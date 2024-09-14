@@ -4,20 +4,9 @@ import sys
 from argparse import ArgumentParser, ArgumentTypeError
 
 from documentation_mkdocs_partial import PACKAGE_NAME, PACKAGE_NAME_RESTRICTED_CHARS
+from documentation_mkdocs_partial.packages.argparse_types import directory, file
 from documentation_mkdocs_partial.packages.packager import Packager
 from documentation_mkdocs_partial.version import __version__
-
-
-def directory(value):
-    if not os.path.isdir(value):
-        raise ArgumentTypeError("Must be an existing directory")
-    return value
-
-
-def file(value):
-    if not os.path.isfile(value):
-        raise ArgumentTypeError("Must be an existing file")
-    return value
 
 
 def package_name(value):
