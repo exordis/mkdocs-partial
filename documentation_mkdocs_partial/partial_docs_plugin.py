@@ -101,7 +101,10 @@ class PartialDocsPlugin(BasePlugin[PartialDocsPluginConfig]):
     # Load doc package plugins
     def _load(self, option: Plugins) -> List[tuple[str, DocsPackagePlugin]]:
         for entrypoint in option.installed_plugins.values():
-            plugin_class = entrypoint.load()
+            try:
+                plugin_class = entrypoint.load()
+            except ModuleNotFoundError:
+                continue
             if issubclass(plugin_class, DocsPackagePlugin) and plugin_class != DocsPackagePlugin:
                 plugin_config: DocsPackagePluginConfig = self.config.packages.setdefault(
                     entrypoint.name, DocsPackagePluginConfig()

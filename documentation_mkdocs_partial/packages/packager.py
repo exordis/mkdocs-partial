@@ -166,11 +166,16 @@ class Packager(ABC):
     def freeze_requirements(requirements: List[Requirement]):
         plugin_requirements = {}
         for mkdocs_plugin in entry_points(group="mkdocs.plugins"):
-            plugin_class = mkdocs_plugin.load()
+            try:
+                plugin_class = mkdocs_plugin.load()
+            except ModuleNotFoundError:
+                continue
+
             if issubclass(plugin_class, DocsPackagePlugin) and plugin_class != DocsPackagePlugin:
                 plugin_requirements[mkdocs_plugin.dist.name] = Requirement(
                     f"{mkdocs_plugin.dist.name}=={mkdocs_plugin.dist.version}"
                 )
+
         for requirement in requirements:
             yield plugin_requirements.get(requirement.name, requirement)
 
