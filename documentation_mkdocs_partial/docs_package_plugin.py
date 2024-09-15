@@ -94,6 +94,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             meta.update(md.metadata)
             md = frontmatter.Post(content)
             md.metadata.update(meta)
+            files.remove(existing_file)
         if is_index and self.__title is not None:
             md.metadata["title"] = self.__title
 
