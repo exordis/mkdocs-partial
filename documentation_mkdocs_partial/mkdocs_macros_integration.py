@@ -3,7 +3,9 @@ from abc import ABC
 from mkdocs.utils import normalize_url
 
 
-class MacrosExtension(ABC):
+# NOTE: has to be replaced with register_filters implementation in PartialDocsPlugin
+#       once https://github.com/fralau/mkdocs-macros-plugin/issues/237 is released
+class MkdocsMacrosIntegration(ABC):
 
     def __init__(self, env, packages):
         self.__packages = packages

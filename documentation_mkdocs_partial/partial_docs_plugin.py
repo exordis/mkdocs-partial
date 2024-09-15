@@ -15,7 +15,7 @@ from mkdocs.utils import normalize_url
 from mkdocs.utils.templates import TemplateContext
 
 from documentation_mkdocs_partial.docs_package_plugin import DocsPackagePlugin, DocsPackagePluginConfig
-from documentation_mkdocs_partial.macros_pluglet import MacrosExtension
+from documentation_mkdocs_partial.mkdocs_macros_integration import MkdocsMacrosIntegration
 
 log = get_plugin_logger(__name__)
 
@@ -90,7 +90,7 @@ class PartialDocsPlugin(BasePlugin[PartialDocsPluginConfig]):
             # macros_plugin plugin is active
             and macros_plugin is not None
         ):
-            MacrosExtension(macros_plugin, self.docs_package_plugins)
+            MkdocsMacrosIntegration(macros_plugin, self.docs_package_plugins)
 
     def package_link(self, url: str, name: str):
         page = self.macros_env.page
