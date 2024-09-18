@@ -12,9 +12,9 @@ from pathlib import Path
 import yaml
 from mkdocs.__main__ import build_command as mkdocs_build_command, serve_command as mkdocs_serve_command
 
+from documentation_mkdocs_partial import normalize_path
 from documentation_mkdocs_partial.entry_point import add_command_parser
 from documentation_mkdocs_partial.packages.argparse_types import directory
-from documentation_mkdocs_partial.packages.packager import Packager
 from documentation_mkdocs_partial.partial_docs_plugin import PartialDocsPlugin
 
 
@@ -24,7 +24,7 @@ def local_docs(value: str):
     path = "/docs" if len(values) <= 1 else values[1]
     if not os.path.isdir(path):
         raise ArgumentTypeError(f"directory '{path}' for plugin '{plugin}' does not exist")
-    return plugin, Packager.normalize_path(path)
+    return plugin, normalize_path(path)
 
 
 class SiteEntryPoint(ABC):
@@ -130,13 +130,13 @@ class SiteEntryPoint(ABC):
         output = args.output
         if output is None:
             output = os.getcwd()
-        output = Packager.normalize_path(output)
+        output = normalize_path(output)
 
         for path in glob.glob(os.path.join(self.__default_site_root, "**/*"), recursive=True):
-            path = Packager.normalize_path(path)
+            path = normalize_path(path)
             dest = os.path.relpath(path, self.__default_site_root)
             dest = os.path.join(output, dest)
-            dest = Packager.normalize_path(dest)
+            dest = normalize_path(dest)
             if os.path.isdir(path):
                 os.makedirs(dest, exist_ok=True)
             else:

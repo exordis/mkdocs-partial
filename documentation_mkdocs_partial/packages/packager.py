@@ -17,7 +17,7 @@ from documentation_reporting.markdown_extension import TemplaterMarkdownExtensio
 from documentation_reporting.templater import Templater
 from packaging.requirements import Requirement
 
-from documentation_mkdocs_partial import MODULE_NAME_RESTRICTED_CHARS, version
+from documentation_mkdocs_partial import MODULE_NAME_RESTRICTED_CHARS, normalize_path, version
 from documentation_mkdocs_partial.docs_package_plugin import DocsPackagePlugin
 
 
@@ -40,9 +40,9 @@ class Packager(ABC):
         **kwargs,
     ):
         resources_src_dir = os.path.abspath(resources_src_dir)
-        resources_src_dir = Packager.normalize_path(resources_src_dir)
+        resources_src_dir = normalize_path(resources_src_dir)
 
-        output_dir = Packager.normalize_path(output_dir)
+        output_dir = normalize_path(output_dir)
         if excludes is None:
             excludes = []
         start = datetime.now()
@@ -105,33 +105,29 @@ class Packager(ABC):
 
             excluded = chain(
                 *[
-                    glob.glob(Packager.normalize_path(os.path.join(resources_src_dir, exclude)), recursive=True)
+                    glob.glob(normalize_path(os.path.join(resources_src_dir, exclude)), recursive=True)
                     for exclude in excludes
                 ]
             )
-            excluded = [Packager.normalize_path(exclude) for exclude in excluded]
+            excluded = [normalize_path(exclude) for exclude in excluded]
             for exclude in excludes:
-                logging.info(f"Excluded glob {Packager.normalize_path(os.path.join(resources_src_dir, exclude))}")
+                logging.info(f"Excluded glob {normalize_path(os.path.join(resources_src_dir, exclude))}")
             for exclude in excluded:
                 logging.info(f"Excluding file {exclude}")
             for file in glob.glob(os.path.join(resources_src_dir, "**/*"), recursive=True):
-                file = Packager.normalize_path(file)
+                file = normalize_path(file)
                 if os.path.isfile(file) and file not in excluded:
                     logging.info(f"Packaging file {file}")
                     path = module_name
                     if resources_package_dir is not None and resources_package_dir != "":
                         path = os.path.join(path, resources_package_dir)
                     path = os.path.join(path, os.path.relpath(file, resources_src_dir))
-                    path = Packager.normalize_path(path)
+                    path = normalize_path(path)
                     record_lines.append(self.write_file(path, Path(file).read_bytes(), zipf))
 
             zipf.writestr(f"{dist_info_dir}/RECORD", "\n".join(record_lines) + "\n")
 
         logging.info(f"Package is built within {(datetime.now() - start)}. File is written to {wheel_filename}")
-
-    @staticmethod
-    def normalize_path(path: str) -> str:
-        return os.path.normpath(path).replace("\\", "/")
 
     @staticmethod
     def write_file(arcname, file_data, zipf):

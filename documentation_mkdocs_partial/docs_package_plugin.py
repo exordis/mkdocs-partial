@@ -1,4 +1,6 @@
 # pylint: disable=unused-argument
+from __future__ import annotations
+
 import glob
 import inspect
 import os
@@ -7,11 +9,16 @@ from pathlib import Path
 from typing import Callable
 
 import frontmatter
+from mkdocs import plugins
 from mkdocs.config import Config, config_options
 from mkdocs.config.defaults import MkDocsConfig
 from mkdocs.livereload import LiveReloadServer
 from mkdocs.plugins import BasePlugin, get_plugin_logger
 from mkdocs.structure.files import File, Files
+
+from documentation_mkdocs_partial import get_mkdocs_plugin, get_mkdocs_plugin_name, normalize_path
+from documentation_mkdocs_partial.mkdocs_material_blog_integration import MkdcosMaterialBlogsIntegration
+from documentation_mkdocs_partial.mkdocs_spellcheck_shim import SpellCheckShim
 
 log = get_plugin_logger(__name__)
 
@@ -39,8 +46,21 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         self.__directory = directory
         self.__edit_url_template = edit_url_template
         self.__files: list[File] = []
+        self.__blog_integration = MkdcosMaterialBlogsIntegration()
 
-    def on_config(self, _: MkDocsConfig) -> MkDocsConfig | None:
+    def on_startup(self, *, command, dirty):
+        # Mkdocs handles plugins with on_startup singletons
+        pass
+
+    def on_shutdown(self) -> None:
+        self.__blog_integration.shutdown()
+
+    @plugins.event_priority(100)
+    def on_pre_build(self, *, config: MkDocsConfig) -> None:
+        self.__blog_integration.sync()
+
+    @plugins.event_priority(-100)
+    def on_config(self, config: MkDocsConfig) -> MkDocsConfig | None:
         if not self.config.enabled:
             return
         if self.config.docs_path is not None:
@@ -55,6 +75,14 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         if self.config.edit_url_template is not None:
             self.__edit_url_template = self.config.edit_url_template
 
+        self.__blog_integration.init(config, self.__docs_path, get_mkdocs_plugin_name(self, config), self.__title)
+        spellcheck_plugin = get_mkdocs_plugin(
+            "spellcheck", "documentation_mkdocs_partial.mkdocs_spellcheck_shim:SpellCheckShim", config
+        )
+        if spellcheck_plugin is not None and not SpellCheckShim.active:
+            log.info("Enabling `mkdocs_spellcheck` integration.")
+            SpellCheckShim.active = True
+
     def on_serve(
         self, server: LiveReloadServer, /, *, config: MkDocsConfig, builder: Callable
     ) -> LiveReloadServer | None:
@@ -62,7 +90,8 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             return server
 
         if self.config.docs_path is not None:
-            server.watch(self.__docs_path, recursive=True)
+            if not self.__blog_integration.watch(server, config):
+                server.watch(self.config.docs_path)
         return server
 
     def on_files(self, files: Files, /, *, config: MkDocsConfig) -> Files | None:
@@ -77,15 +106,20 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             self.add_md_file(file_path, files, config)
         for file_path in glob.glob(os.path.join(self.__docs_path, "**/*.png"), recursive=True):
             self.add_media_file(file_path, files, config)
-        known_words = os.path.join(self.__docs_path, "known_words.txt")
-        if os.path.isfile(known_words):
-            self.add_media_file(known_words, files, config)
+
+        if SpellCheckShim.active:
+            known_words = os.path.join(self.__docs_path, "known_words.txt")
+            if os.path.isfile(known_words):
+                self.add_media_file(known_words, files, config)
 
         return files
 
     def add_md_file(self, file_path, files: Files, config):
         md = frontmatter.loads(Path(file_path).read_text(encoding="utf8"))
         src_uri, is_index = self.get_src_uri(file_path)
+
+        if self.__blog_integration.is_blog_post(file_path):
+            return
         existing_file = files.src_uris.get(src_uri, None)
         if existing_file is not None:
             existing = frontmatter.loads(existing_file.content_string)
@@ -103,11 +137,14 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         self.__files.append(file)
 
     def on_page_context(self, context, page, config, **kwargs):
-        if page.file not in self.__files:
-            return context
-        path = os.path.relpath(page.file.src_path, self.config.directory)
-        if self.__edit_url_template is not None and page.file in self.__files:
-            page.edit_url = str(self.__edit_url_template).format(path=self.get_edit_url_template_path(path))
+        # if self.__blog_integration.get_src_path
+        if page.file in self.__files:
+            path = os.path.relpath(page.file.src_path, self.config.directory)
+            path = self.get_edit_url_template_path(path)
+        else:
+            path = self.__blog_integration.get_src_path(page.file.src_path)
+        if self.__edit_url_template is not None and path is not None:
+            page.edit_url = str(self.__edit_url_template).format(path=path)
         return context
 
     def add_media_file(self, path, files, config):
@@ -121,10 +158,11 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
 
     def get_src_uri(self, file_path):
         is_index = False
-        path = os.path.relpath(file_path, self.__docs_path)
+        path = normalize_path(os.path.relpath(file_path, self.__docs_path))
         if path.lower() == "index.md":
             is_index = True
-        return os.path.join(self.__directory, path).replace("\\", "/").lstrip("/"), is_index
+        path = normalize_path(os.path.join(self.__directory, path)).lstrip("/")
+        return path, is_index
 
     def get_edit_url_template_path(self, path):
-        return os.path.relpath(path, self.__directory).replace("\\", "/")
+        return normalize_path(os.path.relpath(path, self.__directory))

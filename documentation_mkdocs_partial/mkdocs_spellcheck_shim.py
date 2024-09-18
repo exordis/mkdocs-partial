@@ -10,13 +10,21 @@ from mkdocs_spellcheck.plugin import SpellCheckPlugin  # pylint: disable=import-
 
 
 class SpellCheckShim(SpellCheckPlugin):
+    active = False
 
     def on_page_content(self, html: str, page: Page, **kwargs: Any) -> None:
+        if not SpellCheckShim.active:
+            super().on_page_content(html, page, **kwargs)
+            return
+
         if page.meta.get("spellcheck", True) and not page.meta.get("generated", False):
             super().on_page_content(html, page, **kwargs)
 
     @plugins.event_priority(-100)
     def on_files(self, files: Files, /, *, config: MkDocsConfig) -> Files | None:
+        if not SpellCheckShim.active:
+            return files if not hasattr(super(), "on_files") else super().on_files(files, config=config)
+
         known_words_files = list(file for file in files if os.path.basename(file.src_path) == "known_words.txt")
         # remove known_words.txt files to avoid exposing them wth other docs
         for file in known_words_files:
