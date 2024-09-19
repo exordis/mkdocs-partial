@@ -8,12 +8,12 @@ from mkdocs.structure.files import Files
 from mkdocs.structure.pages import Page
 from mkdocs_spellcheck.plugin import SpellCheckPlugin  # pylint: disable=import-error
 
+import documentation_mkdocs_partial
+
 
 class SpellCheckShim(SpellCheckPlugin):
-    active = False
-
     def on_page_content(self, html: str, page: Page, **kwargs: Any) -> None:
-        if not SpellCheckShim.active:
+        if not documentation_mkdocs_partial.SpellCheckShimActive:
             super().on_page_content(html, page, **kwargs)
             return
 
@@ -22,7 +22,7 @@ class SpellCheckShim(SpellCheckPlugin):
 
     @plugins.event_priority(-100)
     def on_files(self, files: Files, /, *, config: MkDocsConfig) -> Files | None:
-        if not SpellCheckShim.active:
+        if not documentation_mkdocs_partial.SpellCheckShimActive:
             return files if not hasattr(super(), "on_files") else super().on_files(files, config=config)
 
         known_words_files = list(file for file in files if os.path.basename(file.src_path) == "known_words.txt")

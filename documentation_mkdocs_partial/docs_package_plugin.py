@@ -16,9 +16,9 @@ from mkdocs.livereload import LiveReloadServer
 from mkdocs.plugins import BasePlugin, get_plugin_logger
 from mkdocs.structure.files import File, Files
 
+import documentation_mkdocs_partial
 from documentation_mkdocs_partial import get_mkdocs_plugin, get_mkdocs_plugin_name, normalize_path
 from documentation_mkdocs_partial.mkdocs_material_blog_integration import MkdcosMaterialBlogsIntegration
-from documentation_mkdocs_partial.mkdocs_spellcheck_shim import SpellCheckShim
 
 log = get_plugin_logger(__name__)
 
@@ -53,6 +53,8 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         pass
 
     def on_shutdown(self) -> None:
+        # Disable shin in case mkdocs is rebuilding without doc_package plugins enabled
+        documentation_mkdocs_partial.SpellCheckShimActive = False
         self.__blog_integration.shutdown()
 
     @plugins.event_priority(100)
@@ -79,9 +81,9 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         spellcheck_plugin = get_mkdocs_plugin(
             "spellcheck", "documentation_mkdocs_partial.mkdocs_spellcheck_shim:SpellCheckShim", config
         )
-        if spellcheck_plugin is not None and not SpellCheckShim.active:
+        if spellcheck_plugin is not None and not documentation_mkdocs_partial.SpellCheckShimActive:
             log.info("Enabling `mkdocs_spellcheck` integration.")
-            SpellCheckShim.active = True
+            documentation_mkdocs_partial.SpellCheckShimActive = True
 
     def on_serve(
         self, server: LiveReloadServer, /, *, config: MkDocsConfig, builder: Callable
@@ -107,7 +109,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         for file_path in glob.glob(os.path.join(self.__docs_path, "**/*.png"), recursive=True):
             self.add_media_file(file_path, files, config)
 
-        if SpellCheckShim.active:
+        if documentation_mkdocs_partial.SpellCheckShimActive:
             known_words = os.path.join(self.__docs_path, "known_words.txt")
             if os.path.isfile(known_words):
                 self.add_media_file(known_words, files, config)
