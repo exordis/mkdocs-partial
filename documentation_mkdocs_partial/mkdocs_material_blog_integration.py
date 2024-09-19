@@ -14,7 +14,7 @@ from mkdocs.livereload import LiveReloadServer
 from documentation_mkdocs_partial import get_mkdocs_plugin, mkdocs_watch_ignore_path
 
 
-class MkdcosMaterialBlogsIntegration(ABC):
+class MkdocsMaterialBlogsIntegration(ABC):
     def __init__(self):
         super().__init__()
         self.__enabled: bool = False

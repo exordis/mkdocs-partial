@@ -18,7 +18,7 @@ from mkdocs.structure.files import File, Files
 
 import documentation_mkdocs_partial
 from documentation_mkdocs_partial import get_mkdocs_plugin, get_mkdocs_plugin_name, normalize_path
-from documentation_mkdocs_partial.mkdocs_material_blog_integration import MkdcosMaterialBlogsIntegration
+from documentation_mkdocs_partial.mkdocs_material_blog_integration import MkdocsMaterialBlogsIntegration
 
 log = get_plugin_logger(__name__)
 
@@ -46,7 +46,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         self.__directory = directory
         self.__edit_url_template = edit_url_template
         self.__files: list[File] = []
-        self.__blog_integration = MkdcosMaterialBlogsIntegration()
+        self.__blog_integration = MkdocsMaterialBlogsIntegration()
 
     def on_startup(self, *, command, dirty):
         # Mkdocs handles plugins with on_startup singletons
