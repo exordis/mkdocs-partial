@@ -3,19 +3,17 @@ import os
 import re
 from importlib.metadata import EntryPoint
 from pathlib import Path
-from typing import cast
 
 import watchdog
-from mkdocs.config.config_options import Plugins
 from mkdocs.config.defaults import MkDocsConfig
 from mkdocs.livereload import LiveReloadServer
-from mkdocs.plugins import BasePlugin, get_plugin_logger
+from mkdocs.plugins import BasePlugin
 from watchdog.events import FileSystemEvent
 
 PACKAGE_NAME_RESTRICTED_CHARS = re.compile(r"[^A-Za-z0-9+_-]")
 MODULE_NAME_RESTRICTED_CHARS = re.compile(r"[^a-z0-9+_]")
 PACKAGE_NAME = re.compile(r"^[A-Za-z0-9+_-]+$")
-SpellCheckShimActive = False
+SpellCheckShimActive = False  # pylint: disable=invalid-name
 
 
 def normalize_path(path: str) -> str:
