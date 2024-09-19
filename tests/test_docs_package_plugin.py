@@ -1,5 +1,7 @@
 import pytest
+from mkdocs.config.config_options import Plugins
 from mkdocs.config.defaults import MkDocsConfig
+from mkdocs.plugins import PluginCollection
 
 from documentation_mkdocs_partial.docs_package_plugin import DocsPackagePlugin, DocsPackagePluginConfig
 
@@ -17,7 +19,13 @@ def test_get_src_uri(directory, path, expected_src_uri):
     plugin = DocsPackagePlugin(directory=directory)
     plugin.config = DocsPackagePluginConfig()
     plugin.config.docs_path = "/docs"
-    plugin.on_config(MkDocsConfig())
+    config = MkDocsConfig()
+    plugins = PluginCollection()
+    Plugins().plugins = plugins
+    config["plugins"] = plugins
+    plugins["test"] = plugin
+
+    plugin.on_config(config)
     assert plugin.get_src_uri(path)[0] == expected_src_uri
 
 
@@ -37,8 +45,14 @@ def test_get_src_uri(directory, path, expected_src_uri):
     ],
 )
 def test_get_edit_url_template_path(directory, path, url_template_path):
+    config = MkDocsConfig()
+    plugins = PluginCollection()
+    Plugins().plugins = plugins
+    config["plugins"] = plugins
     plugin = DocsPackagePlugin(directory=directory)
     plugin.config = DocsPackagePluginConfig()
     plugin.config.docs_path = "/docs"
-    plugin.on_config(MkDocsConfig())
+    plugins["test"] = plugin
+    plugin.on_config(config)
+
     assert plugin.get_edit_url_template_path(path) == url_template_path

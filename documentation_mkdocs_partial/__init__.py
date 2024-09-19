@@ -22,10 +22,8 @@ def normalize_path(path: str) -> str:
 
 
 def get_mkdocs_plugin(name: str, entrypoint: str, config: MkDocsConfig) -> BasePlugin | None:
-    global_plugins: Plugins = cast(Plugins, dict(config._schema)["plugins"])
-    assert isinstance(global_plugins, Plugins)
     plugin_entrypoint: EntryPoint = MkDocsConfig.plugins.installed_plugins.get(name, None)
-    plugin = global_plugins.plugins.get(name, None)
+    plugin = config.plugins.get(name, None)
     if (
         # macros entry point is registered by mkdocs_macros plugin
         plugin_entrypoint is not None
@@ -38,9 +36,7 @@ def get_mkdocs_plugin(name: str, entrypoint: str, config: MkDocsConfig) -> BaseP
 
 
 def get_mkdocs_plugin_name(plugin: BasePlugin, config: MkDocsConfig):
-    global_plugins: Plugins = cast(Plugins, dict(config._schema)["plugins"])
-    assert isinstance(global_plugins, Plugins)
-    for name, instance in global_plugins.plugins.items():
+    for name, instance in config.plugins.items():
         if instance == plugin:
             return name
     return None
