@@ -80,7 +80,7 @@ class MaterialBlogsIntegration(ABC):
                     if not isinstance(categories, list):
                         categories = []
                         md.metadata["categories"] = categories
-                    categories.insert(0,self.__category)
+                    categories.insert(0, self.__category)
                 if not os.path.isfile(abs_path) or Path(abs_path).read_text(encoding="utf8") != frontmatter.dumps(md):
                     frontmatter.dump(md, abs_path)
                 posts.append(os.path.normpath(abs_path))
