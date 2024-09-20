@@ -12,9 +12,7 @@ from mkdocs.structure.nav import Navigation
 from mkdocs.structure.pages import Page
 from mkdocs.utils.templates import TemplateContext
 
-from documentation_mkdocs_partial import get_mkdocs_plugin
 from documentation_mkdocs_partial.docs_package_plugin import DocsPackagePlugin, DocsPackagePluginConfig
-from documentation_mkdocs_partial.mkdocs_macros_integration import MkdocsMacrosIntegration
 
 log = get_plugin_logger(__name__)
 
@@ -46,7 +44,7 @@ class PartialDocsPlugin(BasePlugin[PartialDocsPluginConfig]):
         return context
 
     @plugins.event_priority(100)
-    def _config_packages(self, config):
+    def on_config(self, config):
         if not self.config.enabled:
             return
 
@@ -72,16 +70,6 @@ class PartialDocsPlugin(BasePlugin[PartialDocsPluginConfig]):
 
             if plugin and plugin in self.docs_package_plugins.values():
                 method(command=command, dirty=self.is_dirty)
-
-    # TODO: move to docs package plugin
-    @plugins.event_priority(100)
-    def _config_macros(self, config):
-        macros_plugin = get_mkdocs_plugin("macros", "mkdocs_macros.plugin:MacrosPlugin", config)
-        if macros_plugin is not None:
-            log.info("Detected configured mkdocs_macros plugin. Registering filters")
-            MkdocsMacrosIntegration(macros_plugin, self.docs_package_plugins)
-
-    on_config = plugins.CombinedEvent(_config_packages, _config_macros)
 
     # Load doc package plugins
     def _load(self, option: Plugins) -> List[tuple[str, DocsPackagePlugin]]:

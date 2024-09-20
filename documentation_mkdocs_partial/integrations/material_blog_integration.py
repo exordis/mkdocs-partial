@@ -11,10 +11,10 @@ import watchdog.events
 from mkdocs.config.defaults import MkDocsConfig
 from mkdocs.livereload import LiveReloadServer
 
-from documentation_mkdocs_partial import get_mkdocs_plugin, mkdocs_watch_ignore_path
+from documentation_mkdocs_partial.mkdcos_helpers import get_mkdocs_plugin, mkdocs_watch_ignore_path
 
 
-class MkdocsMaterialBlogsIntegration(ABC):
+class MaterialBlogsIntegration(ABC):
     def __init__(self):
         super().__init__()
         self.__enabled: bool = False

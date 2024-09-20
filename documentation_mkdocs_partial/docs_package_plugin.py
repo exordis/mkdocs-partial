@@ -17,8 +17,14 @@ from mkdocs.plugins import BasePlugin, get_plugin_logger
 from mkdocs.structure.files import File, Files
 
 import documentation_mkdocs_partial
-from documentation_mkdocs_partial import get_mkdocs_plugin, get_mkdocs_plugin_name, normalize_path
-from documentation_mkdocs_partial.mkdocs_material_blog_integration import MkdocsMaterialBlogsIntegration
+from documentation_mkdocs_partial import (
+    MACROS_ENTRYPOINT_NAME,
+    MACROS_ENTRYPOINT_SHIM,
+    SPELLCHECK_ENTRYPOINT_NAME,
+    SPELLCHECK_ENTRYPOINT_SHIM,
+)
+from documentation_mkdocs_partial.integrations.material_blog_integration import MaterialBlogsIntegration
+from documentation_mkdocs_partial.mkdcos_helpers import get_mkdocs_plugin, get_mkdocs_plugin_name, normalize_path
 
 log = get_plugin_logger(__name__)
 
@@ -46,7 +52,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         self.__directory = directory
         self.__edit_url_template = edit_url_template
         self.__files: list[File] = []
-        self.__blog_integration = MkdocsMaterialBlogsIntegration()
+        self.__blog_integration = MaterialBlogsIntegration()
 
     def on_startup(self, *, command, dirty):
         # Mkdocs handles plugins with on_startup singletons
@@ -78,12 +84,16 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             self.__edit_url_template = self.config.edit_url_template
 
         self.__blog_integration.init(config, self.__docs_path, get_mkdocs_plugin_name(self, config), self.__title)
-        spellcheck_plugin = get_mkdocs_plugin(
-            "spellcheck", "documentation_mkdocs_partial.mkdocs_spellcheck_shim:SpellCheckShim", config
-        )
+
+        spellcheck_plugin = get_mkdocs_plugin(SPELLCHECK_ENTRYPOINT_NAME, SPELLCHECK_ENTRYPOINT_SHIM, config)
         if spellcheck_plugin is not None and not documentation_mkdocs_partial.SpellCheckShimActive:
             log.info("Enabling `mkdocs_spellcheck` integration.")
             documentation_mkdocs_partial.SpellCheckShimActive = True
+
+        macros_plugin = get_mkdocs_plugin(MACROS_ENTRYPOINT_NAME, MACROS_ENTRYPOINT_SHIM, config)
+        if macros_plugin is not None:
+            log.info("Detected configured mkdocs_macros plugin. Registering filters")
+            macros_plugin.register_docs_package(get_mkdocs_plugin_name(self, config), self)
 
     def on_serve(
         self, server: LiveReloadServer, /, *, config: MkDocsConfig, builder: Callable

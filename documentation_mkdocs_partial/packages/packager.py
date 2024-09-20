@@ -17,8 +17,9 @@ from documentation_reporting.markdown_extension import TemplaterMarkdownExtensio
 from documentation_reporting.templater import Templater
 from packaging.requirements import Requirement
 
-from documentation_mkdocs_partial import MODULE_NAME_RESTRICTED_CHARS, normalize_path, version
+from documentation_mkdocs_partial import MODULE_NAME_RESTRICTED_CHARS, version
 from documentation_mkdocs_partial.docs_package_plugin import DocsPackagePlugin
+from documentation_mkdocs_partial.mkdcos_helpers import normalize_path
 
 
 class Packager(ABC):
