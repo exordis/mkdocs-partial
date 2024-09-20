@@ -1,7 +1,7 @@
 from typing import Dict
 
 from mkdocs.utils import normalize_url
-from mkdocs_macros.plugin import MacrosPlugin
+from mkdocs_macros.plugin import MacrosPlugin # pylint: disable=import-error
 
 from documentation_mkdocs_partial.docs_package_plugin import DocsPackagePlugin
 
