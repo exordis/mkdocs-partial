@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import glob
 import inspect
+import logging
 import os
 import re
 from pathlib import Path
@@ -13,7 +14,7 @@ from mkdocs import plugins
 from mkdocs.config import Config, config_options
 from mkdocs.config.defaults import MkDocsConfig
 from mkdocs.livereload import LiveReloadServer
-from mkdocs.plugins import BasePlugin, get_plugin_logger
+from mkdocs.plugins import BasePlugin, PrefixedLogger, get_plugin_logger
 from mkdocs.structure.files import File, Files
 
 import documentation_mkdocs_partial
@@ -25,8 +26,6 @@ from documentation_mkdocs_partial import (
 )
 from documentation_mkdocs_partial.integrations.material_blog_integration import MaterialBlogsIntegration
 from documentation_mkdocs_partial.mkdcos_helpers import get_mkdocs_plugin, get_mkdocs_plugin_name, normalize_path
-
-log = get_plugin_logger(__name__)
 
 
 class DocsPackagePluginConfig(Config):
@@ -53,6 +52,8 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         self.__edit_url_template = edit_url_template
         self.__files: list[File] = []
         self.__blog_integration = MaterialBlogsIntegration()
+        self.__plugin_name = ""
+        self.__log = get_plugin_logger("partial_docs")
 
     def on_startup(self, *, command, dirty):
         # Mkdocs handles plugins with on_startup singletons
@@ -70,6 +71,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
     @plugins.event_priority(-100)
     def on_config(self, config: MkDocsConfig) -> MkDocsConfig | None:
         if not self.config.enabled:
+            self.__blog_integration.stop()
             return
         if self.config.docs_path is not None:
             self.__docs_path = self.config.docs_path
@@ -80,20 +82,25 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             self.__directory = ""
         self.__directory = self.__directory.rstrip("/")
 
+        self.__plugin_name = get_mkdocs_plugin_name(self, config)
+
+        logger = logging.getLogger(f"mkdocs.plugins.{__name__}")
+        self.__log = PrefixedLogger(f"partial_docs[{self.__plugin_name}]", logger)
+
         if self.config.edit_url_template is not None:
             self.__edit_url_template = self.config.edit_url_template
 
-        self.__blog_integration.init(config, self.__docs_path, get_mkdocs_plugin_name(self, config), self.__title)
+        self.__blog_integration.init(config, self.__docs_path, self.__plugin_name, self.__title)
 
         spellcheck_plugin = get_mkdocs_plugin(SPELLCHECK_ENTRYPOINT_NAME, SPELLCHECK_ENTRYPOINT_SHIM, config)
         if spellcheck_plugin is not None and not documentation_mkdocs_partial.SpellCheckShimActive:
-            log.info("Enabling `mkdocs_spellcheck` integration.")
+            self.__log.info("Enabling `mkdocs_spellcheck` integration.")
             documentation_mkdocs_partial.SpellCheckShimActive = True
 
         macros_plugin = get_mkdocs_plugin(MACROS_ENTRYPOINT_NAME, MACROS_ENTRYPOINT_SHIM, config)
         if macros_plugin is not None:
-            log.info("Detected configured mkdocs_macros plugin. Registering filters")
-            macros_plugin.register_docs_package(get_mkdocs_plugin_name(self, config), self)
+            self.__log.info("Detected configured mkdocs_macros plugin. Registering filters")
+            macros_plugin.register_docs_package(self.__plugin_name, self)
 
     def on_serve(
         self, server: LiveReloadServer, /, *, config: MkDocsConfig, builder: Callable

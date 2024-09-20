@@ -14,7 +14,7 @@ from mkdocs.utils.templates import TemplateContext
 
 from documentation_mkdocs_partial.docs_package_plugin import DocsPackagePlugin, DocsPackagePluginConfig
 
-log = get_plugin_logger(__name__)
+log = get_plugin_logger("partial_docs")
 
 
 class PartialDocsPluginConfig(Config):

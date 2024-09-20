@@ -95,10 +95,7 @@ class MaterialBlogsIntegration(ABC):
     def shutdown(self):
         if not self.__enabled:
             return
-        self.__stop()
-        shutil.rmtree(self.__target, ignore_errors=True)
-        if os.path.isdir(self.__partial) and not os.listdir(self.__partial):
-            shutil.rmtree(self.__partial, ignore_errors=True)
+        self.stop()
 
     def get_src_path(self, path):
         if not self.__enabled:
@@ -109,3 +106,11 @@ class MaterialBlogsIntegration(ABC):
             path = os.path.relpath(path, self.__docs_path)
             return path
         return None
+
+    def stop(self):
+        self.__stop()
+        if self.__enabled:
+            shutil.rmtree(self.__target, ignore_errors=True)
+            if os.path.isdir(self.__partial) and not os.listdir(self.__partial):
+                shutil.rmtree(self.__partial, ignore_errors=True)
+        self.__enabled = False
