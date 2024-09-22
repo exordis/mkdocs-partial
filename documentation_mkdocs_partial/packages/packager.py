@@ -26,7 +26,7 @@ class Packager(ABC):
     def __init__(self, templates_dir):
         self.__templates_dir = templates_dir
 
-    def pack(
+    def pack(  # pylint: disable=too-many-positional-arguments
         self,
         package_name,
         package_version,
