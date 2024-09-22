@@ -16,6 +16,9 @@ from mkdocs.config.defaults import MkDocsConfig
 from mkdocs.livereload import LiveReloadServer
 from mkdocs.plugins import BasePlugin, PrefixedLogger, get_plugin_logger
 from mkdocs.structure.files import File, Files
+from mkdocs.structure.nav import Navigation
+from mkdocs.structure.pages import Page
+from mkdocs.utils.templates import TemplateContext
 
 import documentation_mkdocs_partial
 from documentation_mkdocs_partial import (
@@ -155,8 +158,9 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         files.append(file)
         self.__files.append(file)
 
-    def on_page_context(self, context, page, config, **kwargs):
-        # if self.__blog_integration.get_src_path
+    def on_page_context(
+        self, context: TemplateContext, /, *, page: Page, config: MkDocsConfig, nav: Navigation
+    ) -> TemplateContext | None:
         if page.file in self.__files:
             path = os.path.relpath(page.file.src_path, self.config.directory)
             path = self.get_edit_url_template_path(path)
