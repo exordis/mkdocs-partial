@@ -13,15 +13,13 @@
 
 #### Integrations
 
+##### Macros
 
-#### Macros
+##### Spellcheck
 
-#### Spellcheck
-
-#### Mkdocs Material Blogs
+##### Mkdocs Material Blogs
 
 ### Partial Docs
-
 
 ## Creating Packages
 
