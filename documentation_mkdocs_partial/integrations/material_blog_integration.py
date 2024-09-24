@@ -47,23 +47,43 @@ class MaterialBlogsIntegration(ABC):
         mkdocs_watch_ignore_path(server, config, self.__source, self.__docs_path)
 
         def blogs_callback(event: watchdog.events.FileSystemEvent):
-            if not event.is_directory:
-                self.sync()
+            # ignore directory events - teh do not affect blogs
+            if event.is_directory:
+                return
+
+            # ignore events for files out of self.__source, likely self.__source was created after
+            # watch started and watched dir its parent
+            if not (event.src_path is not None and Path(event.src_path).is_relative_to(self.__source)) and not (
+                event.dest_path is not None and Path(event.dest_path).is_relative_to(self.__source)
+            ):
+                return
+
+            self.sync()
 
         handler = watchdog.events.FileSystemEventHandler()
         handler.on_any_event = blogs_callback  # type: ignore[method-assign]
-        watch = server.observer.schedule(handler, self.__source, recursive=False)
 
-        def unsubscribe():
-            try:
-                server.observer.unschedule(watch)
-            except KeyError:
-                # At the moment mkdocs unschedules all watches, unsubscribe is just in case it changes in later releases
-                pass
-            self.__stop = lambda *args: None
+        # If source dir does not exist get up the tree in case it would be created later
+        source_watch_dir = self.__source
+        while not os.path.isdir(source_watch_dir) and source_watch_dir is not None:
+            if os.path.dirname(source_watch_dir) != source_watch_dir:
+                source_watch_dir = os.path.dirname(source_watch_dir)
+            else:
+                source_watch_dir = None
 
-        self.__stop = unsubscribe
+        if source_watch_dir is not None:
+            watch = server.observer.schedule(handler, source_watch_dir, recursive=True)
 
+            def unsubscribe():
+                try:
+                    server.observer.unschedule(watch)
+                except KeyError:
+                    # At the moment mkdocs unschedules all watches,
+                    # unsubscribe is just in case it changes in later releases
+                    pass
+                self.__stop = lambda *args: None
+
+            self.__stop = unsubscribe
         return True
 
     def sync(self):
