@@ -146,6 +146,9 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         if existing_file is not None:
             existing = frontmatter.loads(existing_file.content_string)
             content = existing.content + "\n\n" + md.content
+            if len(self.H1_TITLE.findall(content)) > 1:
+                content = self.TITLE.sub("##", content)
+
             meta = dict(existing.metadata)
             meta.update(md.metadata)
             md = frontmatter.Post(content)

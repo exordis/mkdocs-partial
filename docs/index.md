@@ -23,11 +23,11 @@
 ### Partial Docs
 
 
-## CLI
+## Creating Packages
 
-### Creating Site Package
+### Site Package
 
-### Creating Docs Package
+### Docs Package
 
 ## Writing documentation 
 
