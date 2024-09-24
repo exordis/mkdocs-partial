@@ -1,0 +1,1 @@
+docker run --pull always --rm -p 8000:8000  -v docs:/docs registry.gitlab.com/knst/cy/registry/documentation-inceptum serve --local-docs docs-documentation-mkdocs-partial

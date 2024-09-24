@@ -145,7 +145,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         existing_file = files.src_uris.get(src_uri, None)
         if existing_file is not None:
             existing = frontmatter.loads(existing_file.content_string)
-            content = existing.content + "\n" + md.content
+            content = existing.content + "\n\n" + md.content
             meta = dict(existing.metadata)
             meta.update(md.metadata)
             md = frontmatter.Post(content)

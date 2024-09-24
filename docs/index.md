@@ -3,4 +3,3 @@
 ## Goal
 
 - Have documentation close to the code
--  
