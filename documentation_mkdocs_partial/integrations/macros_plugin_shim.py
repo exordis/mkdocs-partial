@@ -1,6 +1,7 @@
+import os.path
 from typing import Dict
 
-from mkdocs.utils import normalize_url
+from mkdocs.config.defaults import MkDocsConfig
 from mkdocs_macros.plugin import MacrosPlugin  # pylint: disable=import-error
 
 from documentation_mkdocs_partial.docs_package_plugin import DocsPackagePlugin
@@ -20,9 +21,11 @@ class MacrosPluginShim(MacrosPlugin):
         page = self.page
         package = self.__docs_packages.get(name, None)
         if package is not None:
-            return normalize_url(f"{package.directory}/{value}", page)
+            url = os.path.relpath(f"{package.directory}/{value}", os.path.dirname(page.file.src_path))
+            url = url.replace("\\", "/")
+            return url
         raise LookupError(f"Package {name} is not installed")
 
-    def on_config(self, config):
+    def on_config(self, config: MkDocsConfig):
         self.filter(self.package_link)
         return super().on_config(config)
