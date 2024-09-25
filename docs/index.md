@@ -214,22 +214,22 @@ Let's say you need to maintain documentation of the company developing two produ
 - `site-company-documentation` 
     - holds `mkdocs.yml` and `requirements.txt` listing all docs packages (in advanced scenario `requirements.txt` is generated during CI with iterating all repositories with gitlab/github API ). 
     - has `partial_docs` plugin loaded with `mkdocs.yml` to automatically load all documentation packages
-    - CI builds this repos with `mkdocs-partial site-package`, installs built package and publishes results of  with `site-company-documentation build`
+    - CI builds this repos with `mkdocs-partial site-package`, installs built package and publishes results of `site-company-documentation build` 
 - `docs-company-documentation` 
     - Holds documentation related to company context - home page of the site, contacts etc. 
     - Docs package is referenced in `requirements.txt` of `site-company-documentation` without version constraint to grab the latest.  
-    - CI builds this repos with `mkdocs-partial package --directory ""` to inject docs to the root of the site
+    - CI builds this repository with `mkdocs-partial package --directory ""` to inject docs to the root of the site
     - CI publishes docs package to company pypi registry and triggers `site-company-documentation` rebuild 
 - `product-a` 
     - holds code for product A and has `docs` directory with documentation. 
-    - Docs package is referenced in `requirements.txt` of `site-company-documentation` without version constraint to grab the latest. 
     - CI builds product and documentation for it with `mkdocs-partial package --package-name docs-project-a --directory ProdcutA` (docs are injected to directory `ProdcutA` of the site)
-    - CI publishes docs package to company pypi registry and triggers `site-company-documentation` rebuild 
+    - `docs-project-a` package is referenced in `requirements.txt` of `site-company-documentation` without version constraint to grab the latest. 
+    - CI publishes `docs-project-a` package to company pypi registry and triggers `site-company-documentation` rebuild 
 - `product-b` 
     - holds code for product A and has `docs` directory with documentation. 
-    - Docs package is referenced in `requirements.txt` of `site-company-documentation` without version constraint to grab the latest. 
     - CI builds product and documentation for it with `mkdocs-partial package --package-name docs-project-b --directory ProdcutB` (docs are injected to directory `ProdcutB` of the site)
-    - CI publishes docs package to company pypi registry and triggers `site-company-documentation` rebuild 
+    - `docs-project-b` package is referenced in `requirements.txt` of `site-company-documentation` without version constraint to grab the latest. 
+    - CI publishes `docs-project-b` package to company pypi registry and triggers `site-company-documentation` rebuild 
 
 !!! Note
     Injecting only release versions of packages to the site, verification of documentation with `--strict` and similar aspects are skipped for clarity
@@ -246,15 +246,15 @@ As result:
 For example maintainer of ProductA documentation may do the following to start editing documentation 
 
   ```
-  # CLone docs package repository
+  # Clone ProductA repository
   git clone [repo with ProductA]
-  # CReate and activate virtual environment 
+  # Create and activate virtual environment 
   python3 -m pip install virtualenv
   python3 -m venv env
   source env/bin/activate
   # Install latest version of company documentation site
   python3 -m pip install site-company-documentation
-  # Launch it with docs package taking content from local folder
+  # Launch it with `docs-project-a` package taking content from local folder
   site-company-documentation serve --local-docs docs-project-a=./docs
   ```
 
@@ -263,9 +263,12 @@ it will start serving company site on http://127.0.0.0:8000 with content for Pro
 
 
 !!! tip
-    `site-company-documentation` may have additional step to build docker image from site, it would make things even simpler for documentation writer as all she'd need is launch docker with something like 
+    `site-company-documentation` CI may have additional step to build docker image from site, it would make things even simpler for documentation writer as all she'd need is launching docker with something like 
     ```
-    docker run --pull always --rm -p 8000:8000 -v .\docs:/docs [docker image] serve --local-docs docs-project-a=./docs
+    docker run --pull always --rm \
+               -p 8000:8000 \
+               -v .\docs:/docs \
+               [docker image] serve --local-docs docs-project-a=./docs
     ```
 
 
