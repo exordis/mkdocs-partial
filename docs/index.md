@@ -266,7 +266,7 @@ For example maintainer of ProductA documentation may do the following to start e
   site-company-documentation serve --local-docs docs-project-a=./docs
   ```
 
-it will start serving company site on http://127.0.0.0:8000 with content for ProductA taken from local folder `./docs` . 
+it will start serving company documentation site on http://127.0.0.0:8000 with content for ProductA taken from local folder `./docs` . 
 
 
 
