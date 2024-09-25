@@ -1,5 +1,6 @@
 # pylint: disable=unused-argument
 import os
+import re
 from typing import Any
 
 from mkdocs import plugins
@@ -12,13 +13,16 @@ import documentation_mkdocs_partial
 
 
 class SpellCheckShim(SpellCheckPlugin):
+    SKIP_SPELLCHECK = re.compile("<!-- *spellcheck: +disable *-->.*?($|<!-- *spellcheck: +enable *-->)", re.DOTALL)
+
     def on_page_content(self, html: str, page: Page, **kwargs: Any) -> None:
         if not documentation_mkdocs_partial.SpellCheckShimActive:
             super().on_page_content(html, page, **kwargs)
             return
 
-        if page.meta.get("spellcheck", True) and not page.meta.get("generated", False):
-            super().on_page_content(html, page, **kwargs)
+        if page.meta.get("spellcheck", True):
+            html_to_spellcheck = self.SKIP_SPELLCHECK.sub("", html)
+            super().on_page_content(html_to_spellcheck, page, **kwargs)
 
     @plugins.event_priority(-100)
     def on_files(self, files: Files, /, *, config: MkDocsConfig) -> Files | None:

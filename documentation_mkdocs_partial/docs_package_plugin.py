@@ -36,6 +36,7 @@ class DocsPackagePluginConfig(Config):
     docs_path = config_options.Optional(config_options.Type(str))
     directory = config_options.Optional(config_options.Type(str))
     edit_url_template = config_options.Optional(config_options.Type(str))
+    name = config_options.Optional(config_options.Type(str))
 
 
 class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
@@ -85,7 +86,10 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             self.__directory = ""
         self.__directory = self.__directory.rstrip("/")
 
-        self.__plugin_name = get_mkdocs_plugin_name(self, config)
+        if self.config.name is not None:
+            self.__plugin_name = self.config.name
+        else:
+            self.__plugin_name = get_mkdocs_plugin_name(self, config)
 
         logger = logging.getLogger(f"mkdocs.plugins.{__name__}")
         self.__log = PrefixedLogger(f"partial_docs[{self.__plugin_name}]", logger)
