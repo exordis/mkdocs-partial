@@ -32,11 +32,11 @@ site_name: "Basic Usage"
 plugins:
   - docs_package:
       directory: injected1
-      docs_path: ~/my-docs/injected1/ # path to the directory containing files to be injected
+      docs_path: ~/my-docs/injected_dir1/ # path to the directory containing files to be injected
       name: injected1
   - docs_package:
       directory: injected2
-      docs_path: ~/my-docs/injected2/ # path to the directory containing files to be injected
+      docs_path: ~/my-docs/injected_dir2/ # path to the directory containing files to be injected
       name: injected2
 ```
 
@@ -44,11 +44,14 @@ plugins:
 
 ##### Macros
 
-If [mkdocs-macros](https://mkdocs-macros-plugin.readthedocs.io/) plugin is detected `docs_package` will register `package_link` macros to construct links to the injected content:
+If [mkdocs-macros](https://mkdocs-macros-plugin.readthedocs.io/) plugin is detected `docs_package` will register `package_link` macros taking package name as single argument and constructing link to the contentinjected by referenced package:
 ```
-[Injected page]({{'{{'}} "index.md" | package_link("injected2") {{'}}'}} )
+[Injected page]({{'{{'}} "getting-started/faq.md" | package_link("injected2") {{'}}'}} )
 ```
-with config above will generate `injected2/index.md` link
+with config above will generate `injected_dir2/getting-started/faq.md` link
+
+!!! Note
+    [mkdocs](https://www.mkdocs.org/) recommends having only relative to `docs_dir`  URIs. With `package_link` macro changing inject directory of plugin does not require any changes in content  
 
 
 
@@ -59,7 +62,7 @@ If [mkdocs-spellcheck](https://pawamoy.github.io/mkdocs-spellcheck/reference/mkd
 
 - add each line in `known_words.txt` (if found) from injected folder to dictionary
 - disable spellcheck for pages with `spellcheck: false` in front matter of the page
-- disable spellcheck for parts of the page after <!-- spellcheck: disable --> and up to <!-- spellcheck: enable --> or to the end of the page content if it is missing 
+- disable spellcheck for parts of the page after `<!-- spellcheck: disable -->` and up to `<!-- spellcheck: enable -->` or to the end of the page content if it is missing 
 
 ##### Mkdocs Material Blogs
 
@@ -73,6 +76,11 @@ If [blogs](https://squidfunk.github.io/mkdocs-material/plugins/blog/) plugin fro
 ### Partial Docs
 
 `partial_docs` plugin is used to load all installed plugins that inherit from `docs_package` (`docs_package` itself is not loaded). It is intended for scenario where multiple `docs_package` plugins are discovered and installed to site with CICD so that adding new package does not require mkdocs config change and it is automatically added to the site once published
+
+#### Configuration
+
+- `enabled` - bool allows to disable plugin from config keeping other configuration in place
+- `packages` - dictionary. Key is `doc_package` inherited plugin name, value is config override
 
 ## Creating Packages
 
