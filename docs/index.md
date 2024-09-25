@@ -44,7 +44,7 @@ plugins:
 
 ##### Macros
 
-If [mkdocs-macros](https://mkdocs-macros-plugin.readthedocs.io/) plugin is detected `docs_package` will register `package_link` macros taking package name as single argument and constructing link to the contentinjected by referenced package:
+If [mkdocs-macros](https://mkdocs-macros-plugin.readthedocs.io/) plugin is detected `docs_package` will register `package_link` macros taking package name as single argument and constructing link to the content injected by referenced package:
 ```
 [Injected page]({{'{{'}} "getting-started/faq.md" | package_link("injected2") {{'}}'}} )
 ```
