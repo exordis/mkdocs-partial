@@ -50,6 +50,13 @@ If [mkdocs-macros](https://mkdocs-macros-plugin.readthedocs.io/) plugin is detec
 ```
 with config above will generate `injected_dir2/getting-started/faq.md` link
 
+If package name argument is not passed to the macros, for pages managed with `docs_package` plugin it will package of the page, for other pages it will fails:
+```
+[Injected page from the same package]({{'{{'}} "getting-started/faq.md" | package_link {{'}}'}} )
+```
+
+
+
 !!! Note
     [mkdocs](https://www.mkdocs.org/) recommends having only relative to `docs_dir`  URIs. With `package_link` macro changing inject directory of plugin does not require any changes in content  
 

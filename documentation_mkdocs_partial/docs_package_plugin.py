@@ -163,6 +163,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         if is_index and self.__title is not None:
             md.metadata["title"] = self.__title
         md.metadata["partial"] = True
+        md.metadata["docs_package"] = self.__plugin_name
         file = File.generated(config=config, src_uri=src_uri, content=frontmatter.dumps(md))
         files.append(file)
         self.__files.append(file)

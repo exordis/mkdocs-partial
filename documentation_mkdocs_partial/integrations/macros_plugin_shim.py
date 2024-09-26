@@ -17,13 +17,18 @@ class MacrosPluginShim(MacrosPlugin):
     def register_docs_package(self, name: str, package: DocsPackagePlugin):
         self.__docs_packages[name] = package
 
-    def package_link(self, value, name: str):
+    def package_link(self, value, name: str = None):
         page = self.page
+        if name is None:
+            name = page.meta.get("docs_package", None)
+
         package = self.__docs_packages.get(name, None)
         if package is not None:
             url = os.path.relpath(f"{package.directory}/{value}", os.path.dirname(page.file.src_path))
             url = url.replace("\\", "/")
             return url
+        if name is None:
+            raise LookupError("`package_link` may be used only on pages managed with `docs_package` plugin")
         raise LookupError(f"Package {name} is not installed")
 
     def on_config(self, config: MkDocsConfig):
