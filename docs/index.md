@@ -7,7 +7,7 @@ Scenarios:
 - **Keep docs close to code:**  some project has multiple repositories, each repository has its documentation. Documentation site is assembled from all repositories docs
 - **Share documentation subset between multiple documentation sites:** multiple projects share some code and expose documentation independently, but documentation of shared part is distributed as package and linked to all project sites 
 - **Sync up look and feel of multiple documentation sites:** Multiple documentation sites have to have similar look and feel, while content differs, site config and UI customizations may be shared in this case
-- **Overcome [mkdocs](https://www.mkdocs.org/) constraint to have all content in `docs_dir` directory:** For some reason constraint to have all docs in [mkdocs](https://www.mkdocs.org/) `docs_dir` directory does not work, content of directory out of  `docs_dir` may be linked to the documentation site   
+- **Overcome [mkdocs](https://www.mkdocs.org/) constraint to have all content in `docs_dir` directory:** If for any reason constraint to have all docs in [mkdocs](https://www.mkdocs.org/) `docs_dir` directory does not work, content of directory out of  `docs_dir` may be linked to the documentation site   
 
 ## Plugins
 
