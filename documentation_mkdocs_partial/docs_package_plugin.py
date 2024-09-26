@@ -24,6 +24,8 @@ import documentation_mkdocs_partial
 from documentation_mkdocs_partial import (
     MACROS_ENTRYPOINT_NAME,
     MACROS_ENTRYPOINT_SHIM,
+    REDIRECTS_ENTRYPOINT_NAME,
+    REDIRECTS_ENTRYPOINT_SHIM,
     SPELLCHECK_ENTRYPOINT_NAME,
     SPELLCHECK_ENTRYPOINT_SHIM,
 )
@@ -160,10 +162,18 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             files.remove(existing_file)
         if is_index and self.__title is not None:
             md.metadata["title"] = self.__title
-
+        md.metadata["partial"] = True
         file = File.generated(config=config, src_uri=src_uri, content=frontmatter.dumps(md))
         files.append(file)
         self.__files.append(file)
+
+        redirects_plugin = get_mkdocs_plugin(REDIRECTS_ENTRYPOINT_NAME, REDIRECTS_ENTRYPOINT_SHIM, config)
+        if redirects_plugin is not None:
+            normalized_redirects = [
+                f"{self.directory}/{redirect}".replace("\\", "/").replace("//", "/")
+                for redirect in md.metadata.get("redirects", [])
+            ]
+            redirects_plugin.add_redirects(files, file, normalized_redirects, config)
 
     def on_page_context(
         self, context: TemplateContext, /, *, page: Page, config: MkDocsConfig, nav: Navigation
