@@ -2,7 +2,7 @@ import frontmatter
 from mkdocs import plugins
 from mkdocs.config.defaults import MkDocsConfig
 from mkdocs.structure.files import File, Files
-from mkdocs_redirects.plugin import RedirectPlugin
+from mkdocs_redirects.plugin import RedirectPlugin  # pylint: disable=import-error
 
 
 class RedirectPluginShim(RedirectPlugin):
