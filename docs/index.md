@@ -67,7 +67,7 @@ If package name argument is not passed to the macros, for pages managed with `do
 If [mkdocs-redirects](https://github.com/mkdocs/mkdocs-redirects) plugin is detected `docs_package` will
 
 - handle `redirects`  tag in front matter as list of alternative URIs for the page
-- each redirect would be registered with [mkdocs-redirects](https://github.com/mkdocs/mkdocs-redirects) as redirect from the specified path to current page
+- each redirect would be registered with [mkdocs-redirects](https://github.com/mkdocs/mkdocs-redirects) as redirect from the specified path (must be relative to package directory) to current page
 
 It is needed to handle cases where `docs_package` page referenced in other packages moves to new uri. Common practice is to build mkdocs site with `--strict` to treat warnings as errors while move of the page referenced in other packages produces warning about missing link target page missing. 
 
@@ -84,6 +84,7 @@ redirects:
 
 ```
 
+   
 
 ##### Spellcheck
 
