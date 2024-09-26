@@ -305,7 +305,7 @@ it will start serving company documentation site on http://127.0.0.0:8000 with c
     ```
     docker run --pull always --rm \
                -p 8000:8000 \
-               -v .\docs:/docs \
+               -v ./docs:/docs \
                [docker image] serve --local-docs docs-project-a=./docs
     ```
 
