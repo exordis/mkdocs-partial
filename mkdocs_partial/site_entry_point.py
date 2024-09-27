@@ -12,10 +12,10 @@ from pathlib import Path
 import yaml
 from mkdocs.__main__ import build_command as mkdocs_build_command, serve_command as mkdocs_serve_command
 
-from documentation_mkdocs_partial.argparse_types import directory
-from documentation_mkdocs_partial.entry_point import add_command_parser
-from documentation_mkdocs_partial.mkdcos_helpers import normalize_path
-from documentation_mkdocs_partial.partial_docs_plugin import PartialDocsPlugin
+from mkdocs_partial.argparse_types import directory
+from mkdocs_partial.entry_point import add_command_parser
+from mkdocs_partial.mkdcos_helpers import normalize_path
+from mkdocs_partial.partial_docs_plugin import PartialDocsPlugin
 
 
 def local_docs(value: str):

@@ -1,7 +1,6 @@
 import glob
 import hashlib
 import importlib
-import inspect
 import logging
 import os
 import zipfile
@@ -17,9 +16,9 @@ from documentation_reporting.markdown_extension import TemplaterMarkdownExtensio
 from documentation_reporting.templater import Templater
 from packaging.requirements import Requirement
 
-from documentation_mkdocs_partial import MODULE_NAME_RESTRICTED_CHARS, version
-from documentation_mkdocs_partial.docs_package_plugin import DocsPackagePlugin
-from documentation_mkdocs_partial.mkdcos_helpers import normalize_path
+from mkdocs_partial import MODULE_NAME_RESTRICTED_CHARS, version
+from mkdocs_partial.docs_package_plugin import DocsPackagePlugin
+from mkdocs_partial.mkdcos_helpers import normalize_path
 
 
 class Packager(ABC):
@@ -63,9 +62,7 @@ class Packager(ABC):
                 requirements = self.parse_requirements(requirements_path)
 
         if add_self_dependency:
-            self_dependency = Requirement(
-                f'{inspect.getmodule(version).__name__.split(".")[0]} >={version.__version__}'
-            )
+            self_dependency = Requirement(f"mkdocs-partial >={version.__version__}")
             requirements.append(self_dependency)
 
         if freeze:
@@ -216,6 +213,6 @@ if __name__ == "__main__":
         "docs-observability",
         "docs-organisation",
         "docs-infrastructure",
-        "documentation_mkdocs_partial",
+        "mkdocs_partial",
     )
     print(modules)

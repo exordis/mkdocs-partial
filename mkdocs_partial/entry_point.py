@@ -3,10 +3,10 @@ import os
 import sys
 from argparse import ArgumentParser, ArgumentTypeError
 
-from documentation_mkdocs_partial import PACKAGE_NAME, PACKAGE_NAME_RESTRICTED_CHARS
-from documentation_mkdocs_partial.argparse_types import directory, file
-from documentation_mkdocs_partial.packages.packager import Packager
-from documentation_mkdocs_partial.version import __version__
+from mkdocs_partial import PACKAGE_NAME, PACKAGE_NAME_RESTRICTED_CHARS
+from mkdocs_partial.argparse_types import directory, file
+from mkdocs_partial.packages.packager import Packager
+from mkdocs_partial.version import __version__
 
 
 def package_name(value):

@@ -20,8 +20,8 @@ from mkdocs.structure.nav import Navigation
 from mkdocs.structure.pages import Page
 from mkdocs.utils.templates import TemplateContext
 
-import documentation_mkdocs_partial
-from documentation_mkdocs_partial import (
+import mkdocs_partial
+from mkdocs_partial import (
     MACROS_ENTRYPOINT_NAME,
     MACROS_ENTRYPOINT_SHIM,
     REDIRECTS_ENTRYPOINT_NAME,
@@ -29,8 +29,8 @@ from documentation_mkdocs_partial import (
     SPELLCHECK_ENTRYPOINT_NAME,
     SPELLCHECK_ENTRYPOINT_SHIM,
 )
-from documentation_mkdocs_partial.integrations.material_blog_integration import MaterialBlogsIntegration
-from documentation_mkdocs_partial.mkdcos_helpers import get_mkdocs_plugin, get_mkdocs_plugin_name, normalize_path
+from mkdocs_partial.integrations.material_blog_integration import MaterialBlogsIntegration
+from mkdocs_partial.mkdcos_helpers import get_mkdocs_plugin, get_mkdocs_plugin_name, normalize_path
 
 
 class DocsPackagePluginConfig(Config):
@@ -67,7 +67,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
 
     def on_shutdown(self) -> None:
         # Disable shin in case mkdocs is rebuilding without doc_package plugins enabled
-        documentation_mkdocs_partial.SpellCheckShimActive = False
+        mkdocs_partial.SpellCheckShimActive = False
         self.__blog_integration.shutdown()
 
     @plugins.event_priority(100)
@@ -102,9 +102,9 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         self.__blog_integration.init(config, self.__docs_path, self.__plugin_name, self.__title)
 
         spellcheck_plugin = get_mkdocs_plugin(SPELLCHECK_ENTRYPOINT_NAME, SPELLCHECK_ENTRYPOINT_SHIM, config)
-        if spellcheck_plugin is not None and not documentation_mkdocs_partial.SpellCheckShimActive:
+        if spellcheck_plugin is not None and not mkdocs_partial.SpellCheckShimActive:
             self.__log.info("Enabling `mkdocs_spellcheck` integration.")
-            documentation_mkdocs_partial.SpellCheckShimActive = True
+            mkdocs_partial.SpellCheckShimActive = True
 
         macros_plugin = get_mkdocs_plugin(MACROS_ENTRYPOINT_NAME, MACROS_ENTRYPOINT_SHIM, config)
         if macros_plugin is not None:
@@ -135,7 +135,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         for file_path in glob.glob(os.path.join(self.__docs_path, "**/*.png"), recursive=True):
             self.add_media_file(file_path, files, config)
 
-        if documentation_mkdocs_partial.SpellCheckShimActive:
+        if mkdocs_partial.SpellCheckShimActive:
             known_words = os.path.join(self.__docs_path, "known_words.txt")
             if os.path.isfile(known_words):
                 self.add_media_file(known_words, files, config)

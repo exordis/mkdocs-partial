@@ -3,7 +3,7 @@ from mkdocs.config.config_options import Plugins
 from mkdocs.config.defaults import MkDocsConfig
 from mkdocs.plugins import PluginCollection
 
-from documentation_mkdocs_partial.docs_package_plugin import DocsPackagePlugin, DocsPackagePluginConfig
+from mkdocs_partial.docs_package_plugin import DocsPackagePlugin, DocsPackagePluginConfig
 
 
 @pytest.mark.parametrize(

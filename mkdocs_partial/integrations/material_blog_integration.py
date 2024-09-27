@@ -11,7 +11,7 @@ import watchdog.events
 from mkdocs.config.defaults import MkDocsConfig
 from mkdocs.livereload import LiveReloadServer
 
-from documentation_mkdocs_partial.mkdcos_helpers import get_mkdocs_plugin, mkdocs_watch_ignore_path
+from mkdocs_partial.mkdcos_helpers import get_mkdocs_plugin, mkdocs_watch_ignore_path
 
 
 class MaterialBlogsIntegration(ABC):

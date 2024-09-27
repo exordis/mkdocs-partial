@@ -4,7 +4,7 @@ from typing import Dict
 from mkdocs.config.defaults import MkDocsConfig
 from mkdocs_macros.plugin import MacrosPlugin  # pylint: disable=import-error
 
-from documentation_mkdocs_partial.docs_package_plugin import DocsPackagePlugin
+from mkdocs_partial.docs_package_plugin import DocsPackagePlugin
 
 
 # NOTE: has to be replaced with register_filters implementation in PartialDocsPlugin

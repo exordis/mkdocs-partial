@@ -12,7 +12,7 @@ from mkdocs.structure.nav import Navigation
 from mkdocs.structure.pages import Page
 from mkdocs.utils.templates import TemplateContext
 
-from documentation_mkdocs_partial.docs_package_plugin import DocsPackagePlugin, DocsPackagePluginConfig
+from mkdocs_partial.docs_package_plugin import DocsPackagePlugin, DocsPackagePluginConfig
 
 log = get_plugin_logger("partial_docs")
 
