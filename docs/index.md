@@ -9,6 +9,12 @@ Scenarios:
 - **Sync up look and feel of multiple documentation sites:** Multiple documentation sites have to have similar look and feel, while content differs, site config and UI customizations may be shared in this case
 - **Overcome [mkdocs](https://www.mkdocs.org/) constraint to have all content in `docs_dir` directory:** If for any reason constraint to have all docs in [mkdocs](https://www.mkdocs.org/) `docs_dir` directory does not work, content of directory out of  `docs_dir` may be linked to the documentation site   
 
+
+## Installation
+
+Installation is as simple as `pip install documentation-mkdocs-partial`.
+Package registers console scripts  `mkdocs-partial` entrypoint and [mkdocs](https://www.mkdocs.org/)  plugins described below . 
+
 ## Plugins
 
 ### Docs Package
