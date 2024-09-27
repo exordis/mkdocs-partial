@@ -12,7 +12,7 @@ Scenarios:
 
 ## Installation
 
-Installation is as simple as `pip install documentation-mkdocs-partial`.
+Installation is as simple as `pip install mkdocs-partial`.
 Package registers console scripts  `mkdocs-partial` entrypoint and [mkdocs](https://www.mkdocs.org/)  plugins described below . 
 
 ## Plugins
