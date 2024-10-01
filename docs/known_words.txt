@@ -1,2 +1,16 @@
 args
 docs_package
+bool
+config
+entrypoint
+filesystem
+github
+gitlab
+http
+https
+mkdocs
+pypi
+repo
+repos
+uri
+url
