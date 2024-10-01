@@ -1,3 +1,5 @@
+import importlib.metadata
+
 import pytest
 from mkdocs.config.config_options import Plugins
 from mkdocs.config.defaults import MkDocsConfig
@@ -56,3 +58,10 @@ def test_get_edit_url_template_path(directory, path, url_template_path):
     plugin.on_config(config)
 
     assert plugin.get_edit_url_template_path(path) == url_template_path
+
+
+# def test_investigation():
+#     installed_dists = list(importlib.metadata.distributions())
+#     a=any(distribution for distribution in  installed_dists  if  distribution.name=="organisation-registry" )
+#     b=any(distribution for distribution in  installed_dists  if  distribution.name=="mkdocs" )
+#     pass

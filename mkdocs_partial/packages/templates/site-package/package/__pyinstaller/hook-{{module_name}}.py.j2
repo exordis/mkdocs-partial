@@ -1,8 +1,9 @@
+import importlib.metadata
 from PyInstaller.utils.hooks import collect_all, copy_metadata
 from mkdocs_partial.packages.packager import Packager
 from itertools import chain
 
-not_hooked_packages=["mkdocs","pymdown-extensions","organisation_registry","symspellpy"]
+not_hooked_packages=["mkdocs","pymdown-extensions","organisation-registry","symspellpy"]
 required_distributions= not_hooked_packages+ [
     "{{package_name}}",
 {% for requirement in requirements %}
@@ -15,12 +16,15 @@ datas=[]
 binaries=[]
 hiddenimports=[]
 
+
 for module in required_modules:
     module_datas, module_binaries, module_hiddenimports = collect_all(module)
     datas+=module_datas
     binaries+=module_binaries
     hiddenimports+=module_hiddenimports
 
+installed_dists = list(importlib.metadata.distributions())
 for distribution in required_distributions:
-    datas+=copy_metadata(distribution, recursive=True)
+    if any(dist for dist in  installed_dists if dist.name=="organisation-registry" ):
+        datas+=copy_metadata(distribution, recursive=True)
 
