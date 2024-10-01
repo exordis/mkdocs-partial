@@ -6,6 +6,8 @@ variables:
   BUILD_DOCKER_ARG_WORKING_DIR: "/docs"
   BUILD_DOCKER_ARG_PYINSTALLER_EXTRA_ARGS: "--collect-all jinja2"
   BUILD_FINAL_TARGET: "final-pyinstaller"
+  BUILD_DOCKER_ARG_DOCS_DIRECTORY: "documentation/partial"
+  BUILD_DOCKER_ARG_DOCS_TITLE: "Partial Documentation"
 include:
   - project: $GITLAB_CICD_TEMPLATES_PROJECT_PATH
     file: 'lib-python.yml'
