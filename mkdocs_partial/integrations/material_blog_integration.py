@@ -1,3 +1,4 @@
+import filecmp
 import glob
 import os
 import posixpath
@@ -104,12 +105,25 @@ class MaterialBlogsIntegration(ABC):
                 if not os.path.isfile(abs_path) or Path(abs_path).read_text(encoding="utf8") != frontmatter.dumps(md):
                     frontmatter.dump(md, abs_path)
                 posts.append(os.path.normpath(abs_path))
+
         for file_path in glob.glob(os.path.join(self.__target, "**/*.md"), recursive=True):
             if os.path.isfile(file_path):
                 if os.path.normpath(file_path) not in posts:
                     os.remove(file_path)
 
-    def is_blog_post(self, path):
+        media = []
+        for file_path in glob.glob(os.path.join(self.__source, "**/*.png"), recursive=True):
+            if os.path.isfile(file_path):
+                abs_path = os.path.join(self.__target, os.path.relpath(file_path, self.__source))
+                if not os.path.isfile(abs_path) or not filecmp.cmp(abs_path, file_path):
+                    shutil.copyfile(file_path, abs_path)
+                media.append(os.path.normpath(abs_path))
+        for file_path in glob.glob(os.path.join(self.__target, "**/*.png"), recursive=True):
+            if os.path.isfile(file_path):
+                if os.path.normpath(file_path) not in media:
+                    os.remove(file_path)
+
+    def is_blog_related(self, path):
         return self.__enabled and Path(path).is_relative_to(self.__source)
 
     def shutdown(self):

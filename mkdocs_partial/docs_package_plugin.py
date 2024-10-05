@@ -143,11 +143,11 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         return files
 
     def add_md_file(self, file_path, files: Files, config):
+        if self.__blog_integration.is_blog_related(file_path):
+            return
+
         md = frontmatter.loads(Path(file_path).read_text(encoding="utf8"))
         src_uri, is_index = self.get_src_uri(file_path)
-
-        if self.__blog_integration.is_blog_post(file_path):
-            return
         existing_file = files.src_uris.get(src_uri, None)
         if existing_file is not None:
             existing = frontmatter.loads(existing_file.content_string)
@@ -189,6 +189,8 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         return context
 
     def add_media_file(self, path, files, config):
+        if self.__blog_integration.is_blog_related(path):
+            return
         src_uri = self.get_src_uri(path)[0]
         existing_file = files.src_uris.get(src_uri, None)
         if existing_file is not None:
