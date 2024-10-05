@@ -98,7 +98,8 @@ If [mkdocs-spellcheck](https://pawamoy.github.io/mkdocs-spellcheck/reference/mkd
 
 - add each line in `known_words.txt` (if found) from injected folder to dictionary
 - disable spellcheck for pages with `spellcheck: false` in front matter of the page
-- disable spellcheck for parts of the page after `<!-- spellcheck: disable -->` and up to `<!-- spellcheck: enable -->` or to the end of the page content if it is missing 
+- disable spellcheck for parts of the page after `<!-- spellcheck: disable -->` and up to `<!-- spellcheck: enable -->` or to the end of the page content if it is missing
+- add `docs_package` plugin name to spellcheck warnings
 
 ##### Mkdocs Material Blogs
 

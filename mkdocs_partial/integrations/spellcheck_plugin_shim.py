@@ -22,7 +22,15 @@ class SpellCheckShim(SpellCheckPlugin):
 
         if page.meta.get("spellcheck", True):
             html_to_spellcheck = self.SKIP_SPELLCHECK.sub("", html)
-            super().on_page_content(html_to_spellcheck, page, **kwargs)
+            if page.file.generated_by is None:
+                super().on_page_content(html_to_spellcheck, page, **kwargs)
+            else:
+                original_path = page.file.src_path
+                try:
+                    page.file.src_path = f"{page.file.generated_by}:{page.file.src_path}"
+                    super().on_page_content(html_to_spellcheck, page, **kwargs)
+                finally:
+                    page.file.src_path = original_path
 
     @plugins.event_priority(-100)
     def on_files(self, files: Files, /, *, config: MkDocsConfig) -> Files | None:
