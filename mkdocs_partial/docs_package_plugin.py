@@ -195,8 +195,10 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             plugin_info = ""
             if existing_file.generated_by is not None:
                 plugin_info = f"registered by '{existing_file.generated_by}' plugin"
-            self.__log.info(f"Can not register file '{src_uri}' as there is already file with same path.{plugin_info}")
-
+            self.__log.warning(
+                f"Can not register file '{src_uri}' as there is already file with same path.{plugin_info}"
+            )
+            return
         file = File.generated(config=config, src_uri=src_uri, content=Path(path).read_bytes())
         files.append(file)
 
