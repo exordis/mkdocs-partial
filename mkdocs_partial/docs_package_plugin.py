@@ -189,13 +189,16 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         return context
 
     def add_media_file(self, path, files, config):
-        files.append(
-            File.generated(
-                config=config,
-                src_uri=self.get_src_uri(path)[0],
-                content=Path(path).read_bytes(),
-            )
-        )
+        src_uri = self.get_src_uri(path)[0]
+        existing_file = files.src_uris.get(src_uri, None)
+        if existing_file is not None:
+            plugin_info = ""
+            if existing_file.generated_by is not None:
+                plugin_info = f"registered by '{existing_file.generated_by}' plugin"
+            self.__log.info(f"Can not register file '{src_uri}' as there is already file with same path.{plugin_info}")
+
+        file = File.generated(config=config, src_uri=src_uri, content=Path(path).read_bytes())
+        files.append(file)
 
     def get_src_uri(self, file_path):
         is_index = False
