@@ -126,28 +126,48 @@ If [blogs](https://squidfunk.github.io/mkdocs-material/plugins/blog/) plugin fro
 Docs package may be created from directory with `mkdocs-partial package` CLI command:
 
 ```
-usage: mkdocs-partial package [-h] [--source-dir SOURCE_DIR] [--package-name PACKAGE_NAME] --package-version PACKAGE_VERSION [--package-description PACKAGE_DESCRIPTION] [--output-dir OUTPUT_DIR] [--exclude EXCLUDE] [--freeze] [--directory DIRECTORY] [--title TITLE] [--edit-url-template EDIT_URL_TEMPLATE]
+usage: entry_point.py package [-h] [--source-dir SOURCE_DIR]
+                              [--package-name PACKAGE_NAME] --package-version
+                              PACKAGE_VERSION
+                              [--package-description PACKAGE_DESCRIPTION]
+                              [--output-dir OUTPUT_DIR] [--exclude EXCLUDE]
+                              [--freeze] [--directory DIRECTORY]
+                              [--title TITLE]
+                              [--blog-categories BLOG_CATEGORIES]
+                              [--edit-url-template EDIT_URL_TEMPLATE]
 
 options:
   -h, --help            show this help message and exit
   --source-dir SOURCE_DIR
                         Directory to be packaged. Default - current directory
   --package-name PACKAGE_NAME
-                        Name of the package to build. Default - normalized `--directory` value directory name.
+                        Name of the package to build. Default - normalized
+                        `--directory` value directory name.
   --package-version PACKAGE_VERSION
                         Version of the package to build
   --package-description PACKAGE_DESCRIPTION
                         Description of the package to build
   --output-dir OUTPUT_DIR
-                        Directory to write generated package file. Default - `--source-dir` value directory name.
-  --exclude EXCLUDE     Exclude glob (should be relative to directory provided with `--source-dir`
-  --freeze              Pin doc package versions in requirements.txt to currently installed. (if there is no requirements.txt in `--source-dir` directory, has no effect)
+                        Directory to write generated package file. Default -
+                        `--source-dir` value directory name.
+  --exclude EXCLUDE     Exclude glob (should be relative to directory provided
+                        with `--source-dir`
+  --freeze              Pin doc package versions in requirements.txt to
+                        currently installed. (if there is no requirements.txt
+                        in `--source-dir` directory, has no effect)
   --directory DIRECTORY
-                        Path in target documentation to inject documentation, relative to mkdocs `doc_dir`. Pass empty string to inject files directly to mkdocs `docs_dir`Default - `--source-dir` value directory name
+                        Path in target documentation to inject documentation,
+                        relative to mkdocs `doc_dir`. Pass empty string to
+                        inject files directly to mkdocs `docs_dir`Default -
+                        `--source-dir` value directory name
   --title TITLE         Override title if defined in package root index.md
+  --blog-categories BLOG_CATEGORIES
+                        `/` separated list of categories to be prepended to
+                        defined in blog posts of the package. Empty by default
   --edit-url-template EDIT_URL_TEMPLATE
-                        f-string template for page edit url with {path} as placeholder for markdown file path relative to directory from --docs-dir
-
+                        f-string template for page edit url with {path} as
+                        placeholder for markdown file path relative to
+                        directory from --docs-dir
 ```
 
 A result of executing this command is wheel python package containing 
@@ -182,22 +202,32 @@ Site package is package with mkdocs config and overrides that is to be shared or
 It may be built with `mkdocs-partial site-package` CLI command
 
 ```
-usage: mkdocs-partial site-package [-h] [--source-dir SOURCE_DIR] [--package-name PACKAGE_NAME] --package-version PACKAGE_VERSION [--package-description PACKAGE_DESCRIPTION] [--output-dir OUTPUT_DIR] [--exclude EXCLUDE] [--freeze]
+usage: entry_point.py site-package [-h] [--source-dir SOURCE_DIR]
+                                   [--package-name PACKAGE_NAME]
+                                   --package-version PACKAGE_VERSION
+                                   [--package-description PACKAGE_DESCRIPTION]
+                                   [--output-dir OUTPUT_DIR]
+                                   [--exclude EXCLUDE] [--freeze]
 
 options:
   -h, --help            show this help message and exit
   --source-dir SOURCE_DIR
                         Directory to be packaged. Default - current directory
   --package-name PACKAGE_NAME
-                        Name of the package to build. Default - `--source-dir` value directory name.
+                        Name of the package to build. Default - `--source-dir`
+                        value directory name.
   --package-version PACKAGE_VERSION
                         Version of the package to build
   --package-description PACKAGE_DESCRIPTION
                         Description of the package to build
   --output-dir OUTPUT_DIR
-                        Directory to write generated package file. Default - `--source-dir` value directory name.
-  --exclude EXCLUDE     Exclude glob (should be relative to directory provided with `--source-dir`
-  --freeze              Pin doc package versions in requirements.txt to currently installed. (if there is no requirements.txt in `--source-dir` directory, has no effect)
+                        Directory to write generated package file. Default -
+                        `--source-dir` value directory name.
+  --exclude EXCLUDE     Exclude glob (should be relative to directory provided
+                        with `--source-dir`
+  --freeze              Pin doc package versions in requirements.txt to
+                        currently installed. (if there is no requirements.txt
+                        in `--source-dir` directory, has no effect)
 ```
 
 built package:

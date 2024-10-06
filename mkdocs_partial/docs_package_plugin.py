@@ -39,6 +39,7 @@ class DocsPackagePluginConfig(Config):
     directory = config_options.Optional(config_options.Type(str))
     edit_url_template = config_options.Optional(config_options.Type(str))
     name = config_options.Optional(config_options.Type(str))
+    blog_categories = config_options.Optional(config_options.Type(str))
 
 
 class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
@@ -50,7 +51,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
     def directory(self):
         return self.__directory
 
-    def __init__(self, directory=None, edit_url_template=None, title=None):
+    def __init__(self, directory=None, edit_url_template=None, title=None, blog_categories=None):
         self.__title = title
         script_dir = os.path.dirname(os.path.realpath(inspect.getfile(self.__class__)))
         self.__docs_path = os.path.join(script_dir, "docs")
@@ -60,6 +61,11 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         self.__blog_integration = MaterialBlogsIntegration()
         self.__plugin_name = ""
         self.__log = get_plugin_logger("partial_docs")
+        self.__blog_categories = blog_categories
+        if self.__blog_categories is None:
+            self.__blog_categories = self.__title
+        if self.__blog_categories is None:
+            self.__blog_categories = self.__directory
 
     def on_startup(self, *, command, dirty):
         # Mkdocs handles plugins with on_startup singletons
@@ -98,8 +104,10 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
 
         if self.config.edit_url_template is not None:
             self.__edit_url_template = self.config.edit_url_template
+        if self.config.blog_categories is not None:
+            self.__blog_categories = self.config.blog_categories
 
-        self.__blog_integration.init(config, self.__docs_path, self.__plugin_name, self.__title)
+        self.__blog_integration.init(config, self.__docs_path, self.__plugin_name, self.__blog_categories)
 
         spellcheck_plugin = get_mkdocs_plugin(SPELLCHECK_ENTRYPOINT_NAME, SPELLCHECK_ENTRYPOINT_SHIM, config)
         if spellcheck_plugin is not None and not mkdocs_partial.SpellCheckShimActive:

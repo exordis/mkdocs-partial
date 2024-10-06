@@ -45,6 +45,13 @@ def run():
         help="Override title if defined in package root index.md",
     )
     package_command.add_argument(
+        "--blog-categories",
+        required=False,
+        default="",
+        help="`/` separated list of  categories to  be prepended  to defined in blog posts of the package."
+        "Empty by default",
+    )
+    package_command.add_argument(
         "--edit-url-template",
         required=False,
         help="f-string template for page edit url with {path} as placeholder for markdown file  path "
@@ -158,6 +165,7 @@ def package(args):
         directory="None" if args.directory is None else f'"{args.directory}"',
         edit_url_template="None" if args.edit_url_template is None else f'"{args.edit_url_template}"',
         title="None" if args.title is None else f'"{args.title}"',
+        blog_categories="None" if args.blog_categories is None else f'"{args.blog_categories}"',
     )
     return True, None
 

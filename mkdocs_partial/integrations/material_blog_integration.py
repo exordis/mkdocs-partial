@@ -23,12 +23,12 @@ class MaterialBlogsIntegration(ABC):
         self.__partial: str | None = None
         self.__source: str | None = None
         self.__target: str | None = None
-        self.__category: str | None = None
+        self.__categories: list[str] = []
         self.__docs_path: str | None = None
         self.__docs_dir: str | None = None
         self.__stop = lambda *args: None
 
-    def init(self, config: MkDocsConfig, docs_path: str, name: str, category: str):
+    def init(self, config: MkDocsConfig, docs_path: str, name: str, categories: str = ""):
         blog_plugin = get_mkdocs_plugin("material/blog", "material.plugins.blog.plugin:BlogPlugin", config)
         self.__enabled = blog_plugin is not None
         if self.__enabled:
@@ -38,7 +38,7 @@ class MaterialBlogsIntegration(ABC):
             self.__docs_dir = config.docs_dir
             self.__partial = os.path.join(self.__docs_dir, blog_posts, "partial")
             self.__target = os.path.join(self.__partial, name)
-            self.__category = category if category != "" else None
+            self.__categories = [] if categories == "" else categories.split("/")
             self.__docs_path = docs_path
         return self.__enabled
 
@@ -96,12 +96,11 @@ class MaterialBlogsIntegration(ABC):
                 md = frontmatter.loads(Path(file_path).read_text(encoding="utf8"))
                 abs_path = os.path.join(self.__target, os.path.relpath(file_path, self.__source))
                 Path(os.path.dirname(abs_path)).mkdir(parents=True, exist_ok=True)
-                if self.__category is not None:
-                    categories: List[str] = md.metadata.setdefault("categories", [])
-                    if not isinstance(categories, list):
-                        categories = []
-                        md.metadata["categories"] = categories
-                    categories.insert(0, self.__category)
+                categories: List[str] = md.metadata.setdefault("categories", [])
+                if not isinstance(categories, list):
+                    md.metadata["categories"] = self.__categories
+                else:
+                    md.metadata["categories"] = self.__categories + categories
                 if not os.path.isfile(abs_path) or Path(abs_path).read_text(encoding="utf8") != frontmatter.dumps(md):
                     frontmatter.dump(md, abs_path)
                 posts.append(os.path.normpath(abs_path))
