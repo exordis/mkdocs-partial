@@ -19,7 +19,7 @@ Package registers console scripts  `mkdocs-partial` entrypoint and [mkdocs](http
 
 ### Docs Package
 
-`docs_package` plugin implements takin of some directory and injecting its content to specified directory of documentation site. It may be just directory out of `docs_dir` in basic case or one may inherit from `DocsPackagePlugin` and create package serving documentation for its resources. `docs_package` does not create any files on filesystem when injecting content , instead it uses mkdocs [`on_files`](https://www.mkdocs.org/dev-guide/plugins/#on_files). Only exception is [blogs](https://squidfunk.github.io/mkdocs-material/plugins/blog/) plugin from [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/) (see below) 
+`docs_package` plugin takes the contents of a specified directory and injects it into a designated directory on the documentation site. It may be just directory out of `docs_dir` in basic case or one may inherit from `DocsPackagePlugin` and create package serving documentation for its resources. `docs_package` does not create any files on filesystem when injecting content , instead it uses mkdocs [`on_files`](https://www.mkdocs.org/dev-guide/plugins/#on_files). Only exception is [blogs](https://squidfunk.github.io/mkdocs-material/plugins/blog/) plugin from [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/) (see below) 
 
 #### Configuration
 
