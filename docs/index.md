@@ -20,6 +20,9 @@ This package registers the `mkdocs-partial` command through a console script ent
 
 ## Plugins
 
+- **`docs_package`** - Injects content from a specified directory into the MkDocs documentation site.
+- **`partial_docs`** - Automatically loads all installed plugins that inherit from `docs_package` for CI/CD scenarios.  
+
 ### Docs Package
 
 The `docs_package` plugin takes the contents of a specified directory and injects them into a target directory on the documentation site. There are two main options for content injection:
