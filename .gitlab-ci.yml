@@ -8,8 +8,10 @@ variables:
   BUILD_FINAL_TARGET: "final-pyinstaller"
   BUILD_DOCKER_ARG_DOCS_DIRECTORY: "documentation/partial"
   BUILD_DOCKER_ARG_DOCS_TITLE: "Partial Documentation"
+  GITHUB_SYNC_CONFIG: |
+    exordis/mkdocs-partials master
+    exordis/sponsors-mkdocs-partials master vNext
 include:
-# test of github sync 1    
   - project: $GITLAB_CICD_TEMPLATES_PROJECT_PATH
     file: 'lib-python.yml'
     
