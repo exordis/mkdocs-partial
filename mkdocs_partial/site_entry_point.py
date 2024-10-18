@@ -29,7 +29,8 @@ def local_docs(value: str):
 
 class SiteEntryPoint(ABC):
 
-    def __init__(self, version, site_root=None):
+    def __init__(self, version, site_root=None, prog=None):
+        self.__prog = prog
         self.__version = version
         if site_root is None:
             script_dir = os.path.dirname(os.path.realpath(inspect.getfile(self.__class__)))
@@ -45,7 +46,7 @@ class SiteEntryPoint(ABC):
 
     def run(self):
 
-        parser = ArgumentParser(description=f"v{self.__version}")
+        parser = ArgumentParser(description=f"v{self.__version}", prog=self.__prog)
         subparsers = parser.add_subparsers(help="commands")
         self.add_mkdocs_command_parser(
             subparsers,
