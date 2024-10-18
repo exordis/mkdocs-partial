@@ -21,7 +21,7 @@ def run():
         format="{asctime} [{levelname}] {message}",
         style="{",
     )
-    parser = ArgumentParser(description=f"v{__version__}")
+    parser = ArgumentParser(description=f"v{__version__}", prog="mkdocs-partial")
     subparsers = parser.add_subparsers(help="commands")
     package_command = add_command_parser(
         subparsers, "package", "Creates partial documentation package from directory", func=package
