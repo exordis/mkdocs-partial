@@ -8,6 +8,7 @@ variables:
   BUILD_FINAL_TARGET: "final-pyinstaller"
   BUILD_DOCKER_ARG_DOCS_DIRECTORY: "documentation/partial"
   BUILD_DOCKER_ARG_DOCS_TITLE: "Partial Documentation"
+  TRIGGER_PROJECTS: "$GITLAB_ROOT_GROUP_PATH/subsystems/documentation/docs-site-documentation-inceptum $GITLAB_ROOT_GROUP_PATH/subsystems/documentation/docs-site-documentation-exordis"
   # GITHUB_SYNC_CONFIG: |
   #   exordis/mkdocs-partial master
   #   exordis/sponsors-mkdocs-partial master vNext
