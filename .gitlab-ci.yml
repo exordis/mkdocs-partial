@@ -22,12 +22,3 @@ include:
     file: 'lib-python.yml'
     inputs:
       github_sync: true
-      
-      
-      
-      
-      
-      
-      
-      
-      
