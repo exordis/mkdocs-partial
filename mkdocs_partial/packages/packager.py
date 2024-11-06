@@ -12,8 +12,8 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import List
 
-from documentation_reporting.markdown_extension import TemplaterMarkdownExtension
-from documentation_reporting.templater import Templater
+from mkdocs_partial.templating.markdown_extension import TemplaterMarkdownExtension
+from mkdocs_partial.templating.templater import Templater
 from packaging.requirements import Requirement
 
 from mkdocs_partial import MODULE_NAME_RESTRICTED_CHARS, version
