@@ -12,13 +12,13 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import List
 
-from mkdocs_partial.templating.markdown_extension import TemplaterMarkdownExtension
-from mkdocs_partial.templating.templater import Templater
 from packaging.requirements import Requirement
 
 from mkdocs_partial import MODULE_NAME_RESTRICTED_CHARS, version
 from mkdocs_partial.docs_package_plugin import DocsPackagePlugin
 from mkdocs_partial.mkdcos_helpers import normalize_path
+from mkdocs_partial.templating.markdown_extension import TemplaterMarkdownExtension
+from mkdocs_partial.templating.templater import Templater
 
 
 class Packager(ABC):
