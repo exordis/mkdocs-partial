@@ -2,5 +2,4 @@
 
 Partial documentation mkdocs plugin and tools
 
-
-2-1
+[Documentation](https://docs.exordis.com/Partial%20Documentation/)
