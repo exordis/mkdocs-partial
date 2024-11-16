@@ -11,17 +11,20 @@ variables:
   TRIGGER_PROJECTS: "$GITLAB_ROOT_GROUP_PATH/subsystems/documentation/docs-site-documentation-inceptum $GITLAB_ROOT_GROUP_PATH/subsystems/documentation/docs-site-documentation-exordis"
   DOCS_DOCKER_ARG_DOCUMENTATION_VERIFY_WITH_SITE_PACKAGES: "documentation-inceptum documentation-exordis"
   VERSIONING_STRATEGY: gitflow
-  # GITHUB_SYNC_CONFIG: |
-  #   exordis/mkdocs-partial master
-  #   exordis/sponsors-mkdocs-partial master vNext
   GITHUB_SYNC_CONFIG: |
-    exordis/test_public master
-    exordis/test_sponsors master vNext
+    exordis/mkdocs-partial master
+    exordis/sponsors-mkdocs-partial master vNext
+  # GITHUB_SYNC_CONFIG: |
+  #   exordis/test_public master
+  #   exordis/test_sponsors master vNext
 include:
   - project: $GITLAB_CICD_TEMPLATES_PROJECT_PATH
     file: 'lib-python.yml'
     inputs:
       github_sync: true
+      
+      
+      
       
       
       
