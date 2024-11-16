@@ -22,6 +22,7 @@ include:
     file: 'lib-python.yml'
     inputs:
       github_sync: true
+      pypi_public_registry: pypi
       
       
       
