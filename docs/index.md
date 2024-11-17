@@ -17,6 +17,7 @@ pip install mkdocs-partial
 ```
 This package registers the `mkdocs-partial` command through a console script entry point and includes the [MkDocs](https://www.mkdocs.org/) plugins described below.
 
+[Source code on GitHub](https://github.com/exordis/mkdocs-partial)
 
 ## Plugins
 
