@@ -64,7 +64,7 @@ class SiteEntryPoint(ABC):
             func=lambda args, argv: self.mkdocs(mkdocs_build_command, args, argv),
         )
 
-        self.add_command_parser(subparsers, "list", "lists partial docs plugins", func=list)
+        self.add_command_parser(subparsers, "list", "lists partial docs plugins", func=self.list)
 
         dump_command = self.add_command_parser(subparsers, "dump", "dump site files to the dir", func=self.dump)
         dump_command.add_argument(
