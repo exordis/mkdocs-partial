@@ -13,6 +13,7 @@ from tempfile import NamedTemporaryFile
 from typing import List
 
 from packaging.requirements import Requirement
+from packaging.version import Version
 
 from mkdocs_partial import MODULE_NAME_RESTRICTED_CHARS, version
 from mkdocs_partial.docs_package_plugin import DocsPackagePlugin
@@ -62,7 +63,18 @@ class Packager(ABC):
                 requirements = self.parse_requirements(requirements_path)
 
         if add_self_dependency:
-            self_dependency = Requirement(f"mkdocs-partial >={version.__version__}")
+            parsed_version = Version(version.__version__)
+            base_version = Version(parsed_version.base_version)
+            if base_version == parsed_version:
+                self_dependency = Requirement(f"mkdocs-partial >={version.__version__}")
+            elif base_version.micro > 0:
+                self_dependency = (
+                    f"mkdocs-partial > {parsed_version.major}.{parsed_version.minor}.{parsed_version.micro - 1}."
+                )
+            elif base_version.minor > 0:
+                self_dependency = f"mkdocs-partial > {parsed_version.major}.{parsed_version.minor - 1}.0"
+            else:
+                self_dependency = f"mkdocs-partial > {parsed_version.major - 1}.0.0"
             requirements.append(self_dependency)
 
         if freeze:
