@@ -65,6 +65,7 @@ class SiteEntryPoint(ABC):
         )
 
         self.add_command_parser(subparsers, "list", "lists partial docs plugins", func=self.list)
+        self.add_command_parser(subparsers, "version", "outputs site version", func=self.version)
 
         dump_command = self.add_command_parser(subparsers, "dump", "dump site files to the dir", func=self.dump)
         dump_command.add_argument(
@@ -110,6 +111,10 @@ class SiteEntryPoint(ABC):
                 continue
             if issubclass(plugin_class, DocsPackagePlugin) and plugin_class != DocsPackagePlugin:
                 print(name)
+        return True, None
+
+    def version(self, args, argv):  # pylint: disable=unused-argument
+        print(self.__version)
         return True, None
 
     def mkdocs(self, command, args, argv):
