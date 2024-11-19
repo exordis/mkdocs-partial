@@ -66,7 +66,7 @@ class Packager(ABC):
             parsed_version = Version(version.__version__)
             base_version = Version(parsed_version.base_version)
             if base_version == parsed_version:
-                self_dependency = Requirement(f"mkdocs-partial >={version.__version__}")
+                self_dependency = f"mkdocs-partial >={version.__version__}"
             elif base_version.micro > 0:
                 self_dependency = (
                     f"mkdocs-partial > {parsed_version.major}.{parsed_version.minor}.{parsed_version.micro - 1}."
@@ -75,7 +75,7 @@ class Packager(ABC):
                 self_dependency = f"mkdocs-partial > {parsed_version.major}.{parsed_version.minor - 1}.0"
             else:
                 self_dependency = f"mkdocs-partial > {parsed_version.major - 1}.0.0"
-            requirements.append(self_dependency)
+            requirements.append(Requirement(self_dependency))
 
         if freeze:
             requirements = Packager.freeze_requirements(requirements)
