@@ -6,6 +6,5 @@ from {{module_name}} import __version__
 from mkdocs_partial.site_entry_point import SiteEntryPoint
 
 def run():
-    print({{module_name}})
     script_dir = os.path.dirname(__file__)
     SiteEntryPoint(__version__, os.path.join(script_dir, "site"),"{{package_name}}").run()
