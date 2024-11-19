@@ -5,7 +5,6 @@ variables:
   BUILD_DOCKER_ARG_COVERAGE_THRESHOLD: 0
   BUILD_DOCKER_ARG_WORKING_DIR: "/docs"
   BUILD_DOCKER_ARG_PYINSTALLER_EXTRA_ARGS: "--collect-all jinja2"
-  BUILD_FINAL_TARGET: "final-pyinstaller"
   DOCS_DOCKER_ARG_DOCS_DIRECTORY: "documentation/partial"
   DOCS_DOCKER_ARG_DOCS_TITLE: "Partial Documentation"
   TRIGGER_PROJECTS: "$GITLAB_ROOT_GROUP_PATH/subsystems/documentation/docs-site-documentation-inceptum $GITLAB_ROOT_GROUP_PATH/subsystems/documentation/docs-site-documentation-exordis"
@@ -25,4 +24,5 @@ include:
     inputs:
       github_sync: true
       pypi_public_registry: pypi
+      final_target: "final-pyinstaller"
       
