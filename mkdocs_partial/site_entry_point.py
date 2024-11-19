@@ -11,8 +11,10 @@ from pathlib import Path
 
 import yaml
 from mkdocs.__main__ import build_command as mkdocs_build_command, serve_command as mkdocs_serve_command
+from mkdocs.plugins import get_plugins
 
 from mkdocs_partial.argparse_types import directory
+from mkdocs_partial.docs_package_plugin import DocsPackagePlugin
 from mkdocs_partial.entry_point import add_command_parser
 from mkdocs_partial.mkdcos_helpers import normalize_path
 from mkdocs_partial.partial_docs_plugin import PartialDocsPlugin
@@ -62,6 +64,8 @@ class SiteEntryPoint(ABC):
             func=lambda args, argv: self.mkdocs(mkdocs_build_command, args, argv),
         )
 
+        self.add_command_parser(subparsers, "list", "lists partial docs plugins", func=list)
+
         dump_command = self.add_command_parser(subparsers, "dump", "dump site files to the dir", func=self.dump)
         dump_command.add_argument(
             "--output", required=False, type=directory, help="Output directory. Default - Current directory"
@@ -96,6 +100,16 @@ class SiteEntryPoint(ABC):
         command_parser.add_argument("--local-docs", required=False, type=local_docs)
         command_parser.add_argument("--site-root", required=False, type=directory)
         return command_parser
+
+    @staticmethod
+    def list(args, argv):  # pylint: disable=unused-argument
+        for name, entrypoint in get_plugins().items():
+            try:
+                plugin_class = entrypoint.load()
+            except ModuleNotFoundError:
+                continue
+            if issubclass(plugin_class, DocsPackagePlugin) and plugin_class != DocsPackagePlugin:
+                print(name)
 
     def mkdocs(self, command, args, argv):
 
