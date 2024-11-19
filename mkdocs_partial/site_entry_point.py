@@ -110,6 +110,7 @@ class SiteEntryPoint(ABC):
                 continue
             if issubclass(plugin_class, DocsPackagePlugin) and plugin_class != DocsPackagePlugin:
                 print(name)
+        return True, None
 
     def mkdocs(self, command, args, argv):
 
