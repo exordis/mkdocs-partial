@@ -265,7 +265,11 @@ usage: [package-name] serve [-h] [--local-docs LOCAL_DOCS] [--site-root SITE_ROO
 options:
   -h, --help            show this help message and exit
   --local-docs LOCAL_DOCS
+                        loads local directory as `docs_package` plugin content. Format <plugin name>[=<docs_path>[::<directory>]]. If `docs_path` is not provided `/docs` is
+                        used as default. If plugin is configured within site mkdocs.yml `directory` overrides corresponding plugin config option. If plugin not configured
+                        within site mkdocs.yml, it is added to config
   --site-root SITE_ROOT
+                        loads local directory as site `docs_dir` instead of the content packed with site package
 ```
 
 All standard arguments for `mkdocs serve` can be passed as well. For example, the server’s port and address can be changed using `--dev-addr`, and `--strict` can be used to trigger a failure on any warning.
@@ -280,7 +284,12 @@ usage: [package-name] build [-h] [--local-docs LOCAL_DOCS] [--site-root SITE_ROO
 options:
   -h, --help            show this help message and exit
   --local-docs LOCAL_DOCS
+                        loads local directory as `docs_package` plugin content. Format <plugin name>[=<docs_path>[::<directory>]]. If `docs_path` is not provided `/docs` is
+                        used as default. If plugin is configured within site mkdocs.yml `directory` overrides corresponding plugin config option. If plugin not configured
+                        within site mkdocs.yml, it is added to config
   --site-root SITE_ROOT
+                        loads local directory as site `docs_dir` instead of the content packed with site package
+
 ```
 
 ##### Export Site Resources

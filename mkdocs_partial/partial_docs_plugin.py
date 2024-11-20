@@ -23,7 +23,7 @@ class PartialDocsPluginConfig(Config):
 
 
 class PartialDocsPlugin(BasePlugin[PartialDocsPluginConfig]):
-    docs_path_overrides: Dict[str, str] = {}
+    overrides: Dict[str, DocsPackagePluginConfig] = {}
 
     def __init__(self):
         self.is_serve = False
@@ -73,19 +73,24 @@ class PartialDocsPlugin(BasePlugin[PartialDocsPluginConfig]):
 
     # Load doc package plugins
     def _load(self, option: Plugins) -> List[tuple[str, DocsPackagePlugin]]:
+        loaded_plugins = []
         for entrypoint in option.installed_plugins.values():
             try:
                 plugin_class = entrypoint.load()
             except ModuleNotFoundError:
                 continue
             if issubclass(plugin_class, DocsPackagePlugin) and plugin_class != DocsPackagePlugin:
-                plugin_config: DocsPackagePluginConfig = self.config.packages.setdefault(
-                    entrypoint.name, DocsPackagePluginConfig()
-                )
-                if entrypoint.name in PartialDocsPlugin.docs_path_overrides:
-                    plugin_config.docs_path = PartialDocsPlugin.docs_path_overrides[entrypoint.name]
-
+                override = PartialDocsPlugin.overrides.setdefault(entrypoint.name, DocsPackagePluginConfig())
+                plugin_config: DocsPackagePluginConfig = self.config.packages.setdefault(entrypoint.name, override)
+                plugin_config.patch(override)
                 name, plugin = option.load_plugin_with_namespace(entrypoint.name, plugin_config.data)
+                loaded_plugins += [entrypoint.name]
+                yield name, cast(DocsPackagePlugin, plugin)
+        for name, override in self.overrides.items():
+            if name not in loaded_plugins:
+                plugin_config: DocsPackagePluginConfig = override
+                plugin_config.name = name
+                name, plugin = option.load_plugin_with_namespace("docs_package", plugin_config.data)
                 yield name, cast(DocsPackagePlugin, plugin)
 
     def _get_plugin(self, method: Callable):

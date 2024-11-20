@@ -14,7 +14,7 @@ from mkdocs.__main__ import build_command as mkdocs_build_command, serve_command
 from mkdocs.plugins import get_plugins
 
 from mkdocs_partial.argparse_types import directory
-from mkdocs_partial.docs_package_plugin import DocsPackagePlugin
+from mkdocs_partial.docs_package_plugin import DocsPackagePlugin, DocsPackagePluginConfig
 from mkdocs_partial.entry_point import add_command_parser
 from mkdocs_partial.mkdcos_helpers import normalize_path
 from mkdocs_partial.partial_docs_plugin import PartialDocsPlugin
@@ -23,10 +23,17 @@ from mkdocs_partial.partial_docs_plugin import PartialDocsPlugin
 def local_docs(value: str):
     values = value.split("=", maxsplit=1)
     plugin = values[0]
-    path = "/docs" if len(values) <= 1 else values[1]
+    docs_directory = None
+    if len(values) <= 1:
+        path = "/docs"
+    else:
+        values = values[1].rsplit("::", maxsplit=1)
+        docs_directory = None if len(values) <= 1 else values[1]
+        path = values[0]
+
     if not os.path.isdir(path):
-        raise ArgumentTypeError(f"directory '{path}' for plugin '{plugin}' does not exist")
-    return plugin, normalize_path(path)
+        raise ArgumentTypeError(f"directory '{path}' for plugin '{plugin}' does not exist.")
+    return plugin, normalize_path(path), docs_directory
 
 
 class SiteEntryPoint(ABC):
@@ -98,8 +105,23 @@ class SiteEntryPoint(ABC):
     @staticmethod
     def add_mkdocs_command_parser(subparsers, name, help_text, func):
         command_parser = add_command_parser(subparsers, name, help_text, func)
-        command_parser.add_argument("--local-docs", required=False, type=local_docs)
-        command_parser.add_argument("--site-root", required=False, type=directory)
+        command_parser.add_argument(
+            "--local-docs",
+            required=False,
+            type=local_docs,
+            help="loads local directory as `docs_package` plugin content. "
+            "Format <plugin name>[=<docs_path>[::<directory>]]. "
+            "If `docs_path` is not provided `/docs` is used as default. "
+            "If plugin is configured within site mkdocs.yml `directory` overrides "
+            "corresponding plugin config option. "
+            "If plugin not configured within site mkdocs.yml, it is added to config",
+        )
+        command_parser.add_argument(
+            "--site-root",
+            required=False,
+            type=directory,
+            help="loads local directory as site `docs_dir` instead of the content packed with " "site package",
+        )
         return command_parser
 
     @staticmethod
@@ -134,8 +156,11 @@ class SiteEntryPoint(ABC):
             return False, f"{mkdocs_yaml_path} must define 'partial_docs' plugin"
 
         if args.local_docs is not None:
-            plugin, docs_path = args.local_docs
-            PartialDocsPlugin.docs_path_overrides[plugin] = docs_path
+            plugin, docs_path, docs_directory = args.local_docs
+            override = DocsPackagePluginConfig()
+            override.docs_path = docs_path
+            override.directory = docs_directory
+            PartialDocsPlugin.overrides[plugin] = override
 
         current_dir = os.getcwd()
         os.chdir(site_root_path)
