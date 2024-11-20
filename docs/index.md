@@ -257,7 +257,7 @@ The `serve` command launches `mkdocs serve` with options to specify:
   parts for docs path and directory are optional. `--local-docs my-docs-package=./my-package/docs` will keep configured directory. `--local-docs my-docs-package` will inject files from `/docs` path keep configured directory.   
 
 - **Inject path which does not have plugin configuration in site resources**
-  if plugin referenced by  `--local-docs` is not configures, configuration with provided path (fallback to `/docs`) and directory (fallback to root of teh site) will be created
+  if plugin referenced by  `--local-docs` is not configures, configuration with provided path (fallback to `/docs`) and directory (fallback to root of the site) will be created
   
 - **Override the site root directory**:  
   The option `--site-root ./site` directs the site package to load the MkDocs configuration and overrides from `./site` rather than its default resources.
