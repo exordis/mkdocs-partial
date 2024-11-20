@@ -41,6 +41,12 @@ class DocsPackagePluginConfig(Config):
     name = config_options.Optional(config_options.Type(str))
     blog_categories = config_options.Optional(config_options.Type(str))
 
+    def patch(self, patch: DocsPackagePluginConfig):
+        if patch.docs_path is not None:
+            self.docs_path = patch.docs_path
+        if patch.directory is not None:
+            self.directory = patch.directory
+
 
 class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
     supports_multiple_instances = True

@@ -38,7 +38,7 @@ class MaterialBlogsIntegration(ABC):
             self.__docs_dir = config.docs_dir
             self.__partial = os.path.join(self.__docs_dir, blog_posts, "partial")
             self.__target = os.path.join(self.__partial, name)
-            self.__categories = [] if categories == "" else categories.split("/")
+            self.__categories = [] if categories == "" or categories is None else categories.split("/")
             self.__docs_path = docs_path
         return self.__enabled
 
