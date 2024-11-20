@@ -252,7 +252,7 @@ The built package will:
 The `serve` command launches `mkdocs serve` with options to specify:
 
 - **Override for any installed docs package resource directory**:  
-  The option `--local-docs my-docs-package=./my-package/docs::my-package` instructs the `my-docs-package` to inject files from `./my-package/docs` instead of its default resources and use `my-package` as inject site directory instead of teh one configured for plugin.
+  The option `--local-docs my-docs-package=./my-package/docs::my-package` instructs the `my-docs-package` to inject files from `./my-package/docs` instead of its default resources and use `my-package` as inject site directory instead of the one configured for plugin.
   
   parts for docs path and directory are optional. `--local-docs my-docs-package=./my-package/docs` will keep configured directory. `--local-docs my-docs-package` will inject files from `/docs` path keep configured directory.   
 
