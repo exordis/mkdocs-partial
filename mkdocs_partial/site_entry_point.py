@@ -20,7 +20,7 @@ from mkdocs_partial.mkdcos_helpers import normalize_path
 from mkdocs_partial.partial_docs_plugin import PartialDocsPlugin
 
 
-def local_docs(value: str):
+def local_docs(value: str, check_path: True):
     values = value.split("=", maxsplit=1)
     plugin = values[0]
     docs_directory = None
@@ -31,7 +31,7 @@ def local_docs(value: str):
         docs_directory = None if len(values) <= 1 else values[1]
         path = values[0]
 
-    if not os.path.isdir(path):
+    if check_path and not os.path.isdir(path):
         raise ArgumentTypeError(f"directory '{path}' for plugin '{plugin}' does not exist.")
     return plugin, normalize_path(path), docs_directory
 

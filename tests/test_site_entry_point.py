@@ -22,7 +22,7 @@ def test_list(capsys):
     ],
 )
 def test_local_docs(value, plugin, docs_path, docs_directory):
-    actual_plugin, actual_docs_path, actual_docs_directory = local_docs(value)
+    actual_plugin, actual_docs_path, actual_docs_directory = local_docs(value, False)
     assert actual_plugin == plugin
     assert actual_docs_path == docs_path
     assert actual_docs_directory == docs_directory
