@@ -20,7 +20,7 @@ from mkdocs_partial.mkdcos_helpers import normalize_path
 from mkdocs_partial.partial_docs_plugin import PartialDocsPlugin
 
 
-def local_docs(value: str, check_path: True):
+def local_docs(value: str, check_path: bool = True):
     values = value.split("=", maxsplit=1)
     plugin = values[0]
     docs_directory = None
