@@ -11,11 +11,32 @@ Scenarios:
 
 ## Installation
 
+### PyPi 
+
 To install `mkdocs-partial` package, run the following command from the command line:
 ```
 pip install mkdocs-partial
 ```
 This package registers the `mkdocs-partial` command through a console script entry point and includes the [MkDocs](https://www.mkdocs.org/) plugins described below.
+
+### Docker 
+
+Pull:
+
+```
+docker pull exordis/mkdocs-partial
+
+```
+
+Execute:
+```
+docker run exordis/mkdocs-partial
+
+```
+
+Entrypoint is mkdocs-partial. See [Creating Packages](#creating-packages) for args documentation 
+
+### Source Code
 
 [Source code on GitHub](https://github.com/exordis/mkdocs-partial)
 
