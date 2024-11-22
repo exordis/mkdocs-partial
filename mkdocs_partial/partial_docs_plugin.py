@@ -58,7 +58,7 @@ class PartialDocsPlugin(BasePlugin[PartialDocsPluginConfig]):
                     src = ""
                     if plugin.config.docs_path is not None:
                         src = f" from source path '{plugin.config.docs_path}'"
-                    log.info(f"Injecting doc package {name} to '{plugin.directory}' directory{src}.")
+                    log.info(f"Injecting doc package {name} v{plugin.version} to '{plugin.directory}' directory{src}.")
                     self.docs_package_plugins[name] = plugin
         except Exception:
             raise PluginError(traceback.format_exc())  # pylint: disable=raise-missing-from
