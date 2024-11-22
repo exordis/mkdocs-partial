@@ -11,34 +11,51 @@ Scenarios:
 
 ## Installation
 
-### PyPi 
+### PyPI 
 
 To install `mkdocs-partial` package, run the following command from the command line:
-```
+```bash
 pip install mkdocs-partial
 ```
 This package registers the `mkdocs-partial` command through a console script entry point and includes the [MkDocs](https://www.mkdocs.org/) plugins described below.
+
+
+[pypi.org project page](https://pypi.org/project/mkdocs-partial/)
 
 ### Docker 
 
 Pull:
 
-```
+```bash
 docker pull exordis/mkdocs-partial
-
 ```
 
 Execute:
-```
+```bash
 docker run exordis/mkdocs-partial
-
 ```
 
 Entrypoint is mkdocs-partial. See [Creating Packages](#creating-packages) for args documentation 
 
-### Source Code
 
-[Source code on GitHub](https://github.com/exordis/mkdocs-partial)
+[DockerHub repository](https://hub.docker.com/repository/docker/exordis/mkdocs-partial)
+
+
+### GitHub
+
+=== "Specific version"
+
+    ```bash
+    pip install git+https://github.com/exordis/mkdocs-partial@1.9.1
+    ```
+
+=== "Latest"
+
+    ```bash
+    pip install git+https://github.com/exordis/mkdocs-partial@master
+    ```
+
+[GitHub project](https://github.com/exordis/mkdocs-partial)
 
 ## Plugins
 
@@ -68,7 +85,7 @@ For example, in GitLab, it could be `"${CI_PROJECT_URL}/-/edit/${CI_COMMIT_BRANC
 
 To inject the content from directories outside of `docs_path`, following configuration can be used:
 
-```
+```yaml
 site_name: "Basic Usage"
 plugins:
   - docs_package:
@@ -86,13 +103,13 @@ plugins:
 ##### Macros
 
 If [mkdocs-macros](https://mkdocs-macros-plugin.readthedocs.io/) plugin is detected `docs_package` will register `package_link` macros taking package name as single argument and constructing link to the content injected by referenced package:
-```
+```jinja
 [Injected page]({{'{{'}} "getting-started/faq.md" | package_link("injected2") {{'}}'}} )
 ```
 with config above will generate `injected_dir2/getting-started/faq.md` link
 
 If package name argument is not passed to the macros, for pages managed with `docs_package` plugin it will package of the page, for other pages it will fails:
-```
+```jinja
 [Injected page from the same package]({{'{{'}} "getting-started/faq.md" | package_link {{'}}'}} )
 ```
 
@@ -208,13 +225,23 @@ The result of executing this command is a Python wheel package that contains:
 
 #### Sample 
 
-```
-mkdocs-partial package --package-name my-docs-package --package-version 0.1.0 --source-dir ".\docs" --output-dir ~/packages --directory my-docs
-```
+=== "python console script"
+
+    ```bash
+    mkdocs-partial package --package-name my-docs-package --package-version 0.1.0 --source-dir ".\docs" --output-dir ~/packages --directory my-docs
+    ```
+
+=== "docker"
+
+    ```bash
+    docker run -v ./docs:/docs -v .:/packages  exordis/mkdocs-partial package --package-name my-docs-package --package-version 0.1.0 --output-dir /packages --directory my-docs
+    ```
+
 
 will create package `~/packages/my_docs_package-0.1.0-py3-none-any.whl` with package named `my-docs-package` that may be added to mkdocs config with 
 
-```
+
+```yaml
 site_name: "Docs Package Demo"
 plugins:
   - my-docs-package
@@ -372,7 +399,7 @@ As a result:
 
 For example maintainer of ProductA documentation may do the following to start editing documentation 
 
-  ```
+  ```bash
   # Clone ProductA repository
   git clone [repo with ProductA]
   # Create and activate virtual environment 
@@ -389,7 +416,7 @@ it will start serving company documentation site on http://127.0.0.0:8000 with c
 
 !!! tip
     `site-company-documentation` CI may have additional step to build docker image from site, it would make things even simpler for documentation writer as all she'd need is launching docker with something like 
-    ```
+    ```bash
     docker run --pull always --rm \
                -p 8000:8000 \
                -v ./docs:/docs \
