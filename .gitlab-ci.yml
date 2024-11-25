@@ -10,7 +10,6 @@ variables:
   DOCS_DOCKER_ARG_DOCS_TITLE: "Partial Documentation"
   TRIGGER_PROJECTS: "$GITLAB_ROOT_GROUP_PATH/subsystems/documentation/docs-site-documentation-inceptum $GITLAB_ROOT_GROUP_PATH/subsystems/documentation/docs-site-documentation-exordis"
   DOCS_DOCKER_ARG_DOCUMENTATION_VERIFY_WITH_SITE_PACKAGES: "documentation-inceptum documentation-exordis"
-  # needed to verify with exordis (TBC: verify with docker instead of installing python packages)
   DOCS_DOCKER_ARG_EXTRA_APK_PACKAGES: cairo
   VERSIONING_STRATEGY: gitflow
   GITHUB_SYNC_CONFIG: |
