@@ -58,12 +58,17 @@ class PartialDocsPlugin(BasePlugin[PartialDocsPluginConfig]):
                     src = ""
                     if plugin.config.docs_path is not None:
                         src = f" from source path '{plugin.config.docs_path}'"
+
+                    # Plugin will process config later, when its on_config is called,
+                    # while it is needed for the output here
+                    directory = plugin.directory
+                    if plugin.config.directory is not None:
+                        directory = plugin.config.directory
+
                     if plugin.version is not None:
-                        log.info(
-                            f"Injecting doc package {name} v{plugin.version} to '{plugin.directory}' directory{src}."
-                        )
+                        log.info(f"Injecting doc package {name} v{plugin.version} to '{directory}' directory{src}.")
                     else:
-                        log.info(f"Injecting doc package {name} to '{plugin.directory}' directory{src}.")
+                        log.info(f"Injecting doc package {name} to '{directory}' directory{src}.")
 
                     self.docs_package_plugins[name] = plugin
         except Exception:
