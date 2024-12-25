@@ -21,7 +21,8 @@ class MaterialBlogsIntegration(ABC):
         self.__enabled: bool = False
 
         self.__partial: str | None = None
-        self.__source: str | None = None
+        self.__posts_dir: str | None = None
+        self.__blog_dir: str | None = None
         self.__target: str | None = None
         self.__categories: list[str] = []
         self.__docs_path: str | None = None
@@ -34,7 +35,8 @@ class MaterialBlogsIntegration(ABC):
         if self.__enabled:
             root = posixpath.normpath(blog_plugin.config.data.get("blog_dir", "blog"))
             blog_posts = blog_plugin.config.data.get("post_dir", "{blog}/posts").format(blog=root)
-            self.__source = os.path.join(docs_path, blog_posts)
+            self.__blog_dir = os.path.join(docs_path, root)
+            self.__posts_dir = os.path.join(docs_path, blog_posts)
             self.__docs_dir = config.docs_dir
             self.__partial = os.path.join(self.__docs_dir, blog_posts, "partial")
             self.__target = os.path.join(self.__partial, name)
@@ -45,7 +47,7 @@ class MaterialBlogsIntegration(ABC):
     def watch(self, server: LiveReloadServer, config: MkDocsConfig):
         if not self.__enabled:
             return False
-        mkdocs_watch_ignore_path(server, config, self.__source, self.__docs_path)
+        mkdocs_watch_ignore_path(server, config, self.__posts_dir, self.__docs_path)
 
         def blogs_callback(event: watchdog.events.FileSystemEvent):
             # ignore directory events - teh do not affect blogs
@@ -54,8 +56,8 @@ class MaterialBlogsIntegration(ABC):
 
             # ignore events for files out of self.__source, likely self.__source was created after
             # watch started and watched dir its parent
-            if not (event.src_path is not None and Path(event.src_path).is_relative_to(self.__source)) and not (
-                event.dest_path is not None and Path(event.dest_path).is_relative_to(self.__source)
+            if not (event.src_path is not None and Path(event.src_path).is_relative_to(self.__posts_dir)) and not (
+                event.dest_path is not None and Path(event.dest_path).is_relative_to(self.__posts_dir)
             ):
                 return
 
@@ -65,7 +67,7 @@ class MaterialBlogsIntegration(ABC):
         handler.on_any_event = blogs_callback  # type: ignore[method-assign]
 
         # If source dir does not exist get up the tree in case it would be created later
-        source_watch_dir = self.__source
+        source_watch_dir = self.__posts_dir
         while not os.path.isdir(source_watch_dir) and source_watch_dir is not None:
             if os.path.dirname(source_watch_dir) != source_watch_dir:
                 source_watch_dir = os.path.dirname(source_watch_dir)
@@ -91,10 +93,10 @@ class MaterialBlogsIntegration(ABC):
         if not self.__enabled:
             return
         posts = []
-        for file_path in glob.glob(os.path.join(self.__source, "**/*.md"), recursive=True):
+        for file_path in glob.glob(os.path.join(self.__posts_dir, "**/*.md"), recursive=True):
             if os.path.isfile(file_path):
                 md = frontmatter.loads(Path(file_path).read_text(encoding="utf8"))
-                abs_path = os.path.join(self.__target, os.path.relpath(file_path, self.__source))
+                abs_path = os.path.join(self.__target, os.path.relpath(file_path, self.__posts_dir))
                 Path(os.path.dirname(abs_path)).mkdir(parents=True, exist_ok=True)
                 categories: List[str] = md.metadata.setdefault("categories", [])
                 if not isinstance(categories, list):
@@ -111,9 +113,9 @@ class MaterialBlogsIntegration(ABC):
                     os.remove(file_path)
 
         media = []
-        for file_path in glob.glob(os.path.join(self.__source, "**/*.png"), recursive=True):
+        for file_path in glob.glob(os.path.join(self.__posts_dir, "**/*.png"), recursive=True):
             if os.path.isfile(file_path):
-                abs_path = os.path.join(self.__target, os.path.relpath(file_path, self.__source))
+                abs_path = os.path.join(self.__target, os.path.relpath(file_path, self.__posts_dir))
                 if not os.path.isfile(abs_path) or not filecmp.cmp(abs_path, file_path):
                     shutil.copyfile(file_path, abs_path)
                 media.append(os.path.normpath(abs_path))
@@ -123,7 +125,7 @@ class MaterialBlogsIntegration(ABC):
                     os.remove(file_path)
 
     def is_blog_related(self, path):
-        return self.__enabled and Path(path).is_relative_to(self.__source)
+        return self.__enabled and Path(path).is_relative_to(self.__blog_dir)
 
     def shutdown(self):
         if not self.__enabled:
@@ -135,7 +137,7 @@ class MaterialBlogsIntegration(ABC):
             return None
         path = os.path.join(self.__docs_dir, path)
         if Path(path).is_relative_to(self.__target):
-            path = os.path.join(self.__source, os.path.relpath(path, self.__target))
+            path = os.path.join(self.__posts_dir, os.path.relpath(path, self.__target))
             path = os.path.relpath(path, self.__docs_path)
             return path
         return None
