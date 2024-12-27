@@ -108,7 +108,7 @@ If [mkdocs-macros](https://mkdocs-macros-plugin.readthedocs.io/) plugin is detec
 ```
 with config above will generate `injected_dir2/getting-started/faq.md` link
 
-If package name argument is not passed to the macros, for pages managed with `docs_package` plugin it will package of the page, for other pages it will fails:
+If package name argument is not passed to the macros, for pages managed with `docs_package` package of the page is used as default, for other pages it fails:
 ```jinja
 [Injected page from the same package]({{'{{'}} "getting-started/faq.md" | package_link {{'}}'}} )
 ```
