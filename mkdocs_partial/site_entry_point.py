@@ -150,7 +150,7 @@ class SiteEntryPoint(ABC):
         if not os.path.isfile(mkdocs_yaml_path):
             return False, "Site root does not have mkdocs.yml"
         with open(mkdocs_yaml_path) as file:
-            mkdocs_yaml = yaml.safe_load(file)
+            mkdocs_yaml = yaml.full_load(file)
         plugins = mkdocs_yaml.get("plugins", [])
         if not any("partial_docs" in plugin for plugin in plugins):
             return False, f"{mkdocs_yaml_path} must define 'partial_docs' plugin"
