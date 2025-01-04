@@ -155,6 +155,8 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             self.add_md_file(file_path, files, config)
         for file_path in glob.glob(os.path.join(self.__docs_path, "**/*.png"), recursive=True):
             self.add_media_file(file_path, files, config)
+        for file_path in glob.glob(os.path.join(self.__docs_path, "**/*.pdf"), recursive=True):
+            self.add_media_file(file_path, files, config)
 
         if mkdocs_partial.SpellCheckShimActive:
             known_words = os.path.join(self.__docs_path, "known_words.txt")
