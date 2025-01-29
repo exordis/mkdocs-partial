@@ -1,6 +1,7 @@
 import pytest
+import yaml
 
-from mkdocs_partial.site_entry_point import SiteEntryPoint, local_docs
+from mkdocs_partial.site_entry_point import IgnoreUnknownTagsLoader, SiteEntryPoint, local_docs
 
 
 def test_list(capsys):
@@ -25,3 +26,14 @@ def test_local_docs(value, plugin, docs_path, docs_directory):
     assert actual_plugin == plugin
     assert actual_docs_path == docs_path or (actual_docs_path is None and docs_path is None)
     assert actual_docs_directory == docs_directory
+
+
+def test_load_yaml_with_unknown_tags():
+    yaml_content = """
+    known: value
+    unknown: !unknown_tag some_value
+    """
+
+    data = yaml.load(yaml_content, Loader=IgnoreUnknownTagsLoader)
+    assert data["known"] == "value"
+    assert data["unknown"] is None
