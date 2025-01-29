@@ -163,7 +163,7 @@ Mkdocs supports configuring  [markdown_extensions](https://www.mkdocs.org/user-g
 
 It does not work for `docs_package` handled pages as they are generated from `mkdocs` perspective thus and not have path on file system, while `markdown_extensions` like `pymdownx.snippets` lookup files on file system.     
 
-To have same logic as for files statically by mkdocs, if `docs_package` is used with `mkdocs.yml` it extends config with `!docs_package_relative` tag, that expands to path of current page if it is handled with teh plugin. 
+To have same logic as for files statically by mkdocs, if `docs_package` is used with `mkdocs.yml` it extends config with `!docs_package_relative` tag, that expands to path of current page if it is handled with the plugin. 
 
 ``` yaml
 markdown_extensions:
@@ -176,7 +176,7 @@ markdown_extensions:
         - !docs_package_relative  
 ```
 
-Snippet files must reside in directory passed as source directory when creating [docs package](#docs)
+Snippet files must reside in directory passed as source directory when creating [docs package](#docs-package_1)
 
 !!! Note
     At the moment such files are served over http. In later releases CLI would be extended to let exclusion of some packaged files from being served with http  
@@ -197,7 +197,7 @@ Snippet files must reside in directory passed as source directory when creating 
 
 ## Creating Packages
 
-### Docs
+### Docs Package
 
 Docs package may be created from directory with `mkdocs-partial package` CLI command:
 
@@ -282,7 +282,7 @@ and inject content to `/my-docs` of the site (unless overridden within `mkdocs.y
 
 If packaged directory contains `requirements.txt`, built package will have dependencies it defines.
 
-### Site
+### Site Package
 
 Site package is package with mkdocs config and overrides that is to be shared or accumulate all docs packages for deployment.
 
