@@ -21,12 +21,13 @@ from mkdocs_partial.partial_docs_plugin import PartialDocsPlugin
 
 
 class IgnoreUnknownTagsLoader(yaml.SafeLoader):  # pylint: disable=too-many-ancestors
-    @staticmethod
-    def ignore_unknown_tags(loader, tag_suffix, node):  # pylint: disable=unused-argument
-        return None
+    @classmethod
+    def setup(cls, *tags: str):
+        for tag in tags:
+            cls.add_multi_constructor(tag, lambda loader, suffix, node: None)
 
 
-IgnoreUnknownTagsLoader.add_multi_constructor("!", IgnoreUnknownTagsLoader.ignore_unknown_tags)
+IgnoreUnknownTagsLoader.setup("tag:yaml.org,2002:python/name", "!", "!!")
 
 
 def local_docs(value: str, check_path: bool = True):

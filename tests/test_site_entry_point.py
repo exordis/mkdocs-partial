@@ -32,8 +32,10 @@ def test_load_yaml_with_unknown_tags():
     yaml_content = """
     known: value
     unknown: !unknown_tag some_value
+    python_tag: !!python/name:pymdownx.superfences.fence_code_format
     """
 
     data = yaml.load(yaml_content, Loader=IgnoreUnknownTagsLoader)
     assert data["known"] == "value"
     assert data["unknown"] is None
+    assert data["python_tag"] is None
