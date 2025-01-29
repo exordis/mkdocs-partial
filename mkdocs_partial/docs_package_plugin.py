@@ -8,7 +8,7 @@ import os
 import re
 import tempfile
 from pathlib import Path
-from typing import Callable, overload
+from typing import Callable
 
 import frontmatter
 from mkdocs import plugins
@@ -16,7 +16,7 @@ from mkdocs.config import Config, config_options
 from mkdocs.config.defaults import MkDocsConfig
 from mkdocs.livereload import LiveReloadServer
 from mkdocs.plugins import BasePlugin, PrefixedLogger, get_plugin_logger
-from mkdocs.structure.files import File, Files, InclusionLevel
+from mkdocs.structure.files import File, Files
 from mkdocs.structure.nav import Navigation
 from mkdocs.structure.pages import Page
 from mkdocs.utils.templates import TemplateContext
@@ -34,7 +34,7 @@ from mkdocs_partial import (
 from mkdocs_partial.integrations.material_blog_integration import MaterialBlogsIntegration
 from mkdocs_partial.mkdcos_helpers import get_mkdocs_plugin, get_mkdocs_plugin_name, normalize_path
 
-Loader.add_constructor('!docs_package_relative', lambda loader, node: DocsPackageDirPlaceholder())
+Loader.add_constructor("!docs_package_relative", lambda loader, node: DocsPackageDirPlaceholder())
 
 
 class DocsPackageDirPlaceholder(os.PathLike):
@@ -50,28 +50,6 @@ class DocsPackageDirPlaceholder(os.PathLike):
     def __str__(self) -> str:
         """Can be converted to a string to obtain the current class."""
         return self.__fspath__()
-
-
-class DocsPackageFile(File):
-
-    @classmethod
-    def generated(cls, config: MkDocsConfig, src_uri: str, *, content: str | bytes | None = None,
-                  abs_src_path_override: str | None = None,
-                  inclusion: InclusionLevel = InclusionLevel.UNDEFINED) -> DocsPackageFile:
-        file = super().generated(config, src_uri, content=content, inclusion=inclusion)
-        file.__abs_src_path_override = abs_src_path_override
-        # file.__dict__.pop('abs_src_path', None)
-        # vars(file).pop('abs_src_path', None)
-        # file.src_path=os.path.relpath(abs_src_path_override, config.docs_dir)
-        return file
-
-    # @property
-    # def abs_src_path(self) -> str | None:
-    #     return self.__abs_src_path_override
-    #
-    # @abs_src_path.setter
-    # def abs_src_path(self, value: str):
-    #     pass
 
 
 class DocsPackagePluginConfig(Config):
@@ -101,7 +79,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         return self.__directory
 
     def __init__(
-            self, directory=None, edit_url_template=None, title=None, blog_categories=None, version: str = None
+        self, directory=None, edit_url_template=None, title=None, blog_categories=None, version: str = None
     ):  # pylint: disable=too-many-positional-arguments
         self.__version = version
         self.__title = title
@@ -180,7 +158,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             macros_plugin.register_docs_package(self.__plugin_name, self)
 
     def on_serve(
-            self, server: LiveReloadServer, /, *, config: MkDocsConfig, builder: Callable
+        self, server: LiveReloadServer, /, *, config: MkDocsConfig, builder: Callable
     ) -> LiveReloadServer | None:
         if not self.config.enabled:
             return server
@@ -234,8 +212,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             md.metadata["title"] = self.__title
         md.metadata["partial"] = True
         md.metadata["docs_package"] = self.__plugin_name
-        file: File = DocsPackageFile.generated(config=config, src_uri=src_uri, content=frontmatter.dumps(md),
-                                               abs_src_path_override=file_path)
+        file: File = File.generated(config=config, src_uri=src_uri, content=frontmatter.dumps(md))
         files.append(file)
         self.__files.append(file)
 
@@ -248,7 +225,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             redirects_plugin.add_redirects(files, file, normalized_redirects, config)
 
     def on_page_context(
-            self, context: TemplateContext, /, *, page: Page, config: MkDocsConfig, nav: Navigation
+        self, context: TemplateContext, /, *, page: Page, config: MkDocsConfig, nav: Navigation
     ) -> TemplateContext | None:
         if page.file in self.__files:
             path = os.path.relpath(page.file.src_path, self.config.directory)
@@ -288,10 +265,10 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
 
     def on_pre_page(self, page: Page, /, *, config: MkDocsConfig, files: Files) -> Page | None:
         if page.file in self.__files:
-            DocsPackagePlugin.current=self
+            DocsPackagePlugin.current = self
         return page
 
     def on_post_page(self, output: str, /, *, page: Page, config: MkDocsConfig) -> str | None:
         if page.file in self.__files:
-            DocsPackagePlugin.current=None
+            DocsPackagePlugin.current = None
         return output
