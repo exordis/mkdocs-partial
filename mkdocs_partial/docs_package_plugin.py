@@ -6,6 +6,7 @@ import inspect
 import logging
 import os
 import re
+import tempfile
 from pathlib import Path
 from typing import Callable
 
@@ -19,6 +20,7 @@ from mkdocs.structure.files import File, Files
 from mkdocs.structure.nav import Navigation
 from mkdocs.structure.pages import Page
 from mkdocs.utils.templates import TemplateContext
+from yaml import Loader
 
 import mkdocs_partial
 from mkdocs_partial import (
@@ -31,6 +33,23 @@ from mkdocs_partial import (
 )
 from mkdocs_partial.integrations.material_blog_integration import MaterialBlogsIntegration
 from mkdocs_partial.mkdcos_helpers import get_mkdocs_plugin, get_mkdocs_plugin_name, normalize_path
+
+Loader.add_constructor("!docs_package_relative", lambda loader, node: DocsPackageDirPlaceholder())
+
+
+class DocsPackageDirPlaceholder(os.PathLike):
+
+    def __fspath__(self) -> str:
+        """Can be used as a path."""
+        if DocsPackagePlugin.current is None:
+            non_existing_path = os.path.join(tempfile.gettempdir(), "DefinitelyNonExistingDirectory_123456789")
+            assert not os.path.exists(non_existing_path)  # Ensure it does not exist
+            return non_existing_path
+        return DocsPackagePlugin.current.docs_path
+
+    def __str__(self) -> str:
+        """Can be converted to a string to obtain the current class."""
+        return self.__fspath__()
 
 
 class DocsPackagePluginConfig(Config):
@@ -52,6 +71,8 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
     supports_multiple_instances = True
     H1_TITLE = re.compile(r"^#[^#]", flags=re.MULTILINE)
     TITLE = re.compile(r"^#", flags=re.MULTILINE)
+
+    current: DocsPackagePlugin = None
 
     @property
     def directory(self):
@@ -79,6 +100,10 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
     @property
     def version(self):
         return self.__version
+
+    @property
+    def docs_path(self):
+        return self.__docs_path
 
     def on_startup(self, *, command, dirty):
         # Mkdocs handles plugins with on_startup singletons
@@ -155,6 +180,8 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             self.add_md_file(file_path, files, config)
         for file_path in glob.glob(os.path.join(self.__docs_path, "**/*.png"), recursive=True):
             self.add_media_file(file_path, files, config)
+        for file_path in glob.glob(os.path.join(self.__docs_path, "**/*.pdf"), recursive=True):
+            self.add_media_file(file_path, files, config)
 
         if mkdocs_partial.SpellCheckShimActive:
             known_words = os.path.join(self.__docs_path, "known_words.txt")
@@ -185,7 +212,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             md.metadata["title"] = self.__title
         md.metadata["partial"] = True
         md.metadata["docs_package"] = self.__plugin_name
-        file = File.generated(config=config, src_uri=src_uri, content=frontmatter.dumps(md))
+        file: File = File.generated(config=config, src_uri=src_uri, content=frontmatter.dumps(md))
         files.append(file)
         self.__files.append(file)
 
@@ -235,3 +262,13 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
 
     def get_edit_url_template_path(self, path):
         return normalize_path(os.path.relpath(path, self.__directory))
+
+    def on_pre_page(self, page: Page, /, *, config: MkDocsConfig, files: Files) -> Page | None:
+        if page.file in self.__files:
+            DocsPackagePlugin.current = self
+        return page
+
+    def on_post_page(self, output: str, /, *, page: Page, config: MkDocsConfig) -> str | None:
+        if page.file in self.__files:
+            DocsPackagePlugin.current = None
+        return output
