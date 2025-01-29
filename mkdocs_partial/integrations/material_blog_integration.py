@@ -50,7 +50,7 @@ class MaterialBlogsIntegration(ABC):
         mkdocs_watch_ignore_path(server, config, self.__posts_dir, self.__docs_path)
 
         def blogs_callback(event: watchdog.events.FileSystemEvent):
-            # ignore directory events - teh do not affect blogs
+            # ignore directory events - the do not affect blogs
             if event.is_directory:
                 return
 

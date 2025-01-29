@@ -20,6 +20,16 @@ from mkdocs_partial.mkdcos_helpers import normalize_path
 from mkdocs_partial.partial_docs_plugin import PartialDocsPlugin
 
 
+class IgnoreUnknownTagsLoader(yaml.SafeLoader):  # pylint: disable=too-many-ancestors
+    @classmethod
+    def setup(cls, *tags: str):
+        for tag in tags:
+            cls.add_multi_constructor(tag, lambda loader, suffix, node: None)
+
+
+IgnoreUnknownTagsLoader.setup("tag:yaml.org,2002:python/name", "!", "!!")
+
+
 def local_docs(value: str, check_path: bool = True):
     values = value.split("=", maxsplit=1)
     plugin = values[0]
@@ -149,8 +159,10 @@ class SiteEntryPoint(ABC):
         mkdocs_yaml_path = os.path.join(site_root_path, "mkdocs.yml")
         if not os.path.isfile(mkdocs_yaml_path):
             return False, "Site root does not have mkdocs.yml"
+
         with open(mkdocs_yaml_path) as file:
-            mkdocs_yaml = yaml.unsafe_load(file)
+            mkdocs_yaml = yaml.load(file, Loader=IgnoreUnknownTagsLoader)
+
         plugins = mkdocs_yaml.get("plugins", [])
         if not any("partial_docs" in plugin for plugin in plugins):
             return False, f"{mkdocs_yaml_path} must define 'partial_docs' plugin"
