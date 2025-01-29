@@ -147,6 +147,7 @@ If [mkdocs-spellcheck](https://pawamoy.github.io/mkdocs-spellcheck/reference/mkd
 - Disable spellcheck for for sections of a page following `<!-- spellcheck: disable -->` until  `<!-- spellcheck: enable -->` or the end of the page if `enable` is missing.
 - Include `docs_package` plugin name to spellcheck warnings.
 
+
 ##### Mkdocs Material Blogs
 
 If [blogs](https://squidfunk.github.io/mkdocs-material/plugins/blog/) plugin from [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/)  is detected `docs_package` will inject blog posts from directory having path matching `post_dir` of [blogs](https://squidfunk.github.io/mkdocs-material/plugins/blog/) plugin within injected directory (by default - `blog/posts`)
@@ -155,6 +156,35 @@ If [blogs](https://squidfunk.github.io/mkdocs-material/plugins/blog/) plugin fro
 !!! note
 
     [blogs](https://squidfunk.github.io/mkdocs-material/plugins/blog/) plugin manipulates with filesystem, so to inject blog posts `docs_package` creates `partial` directory in `post_dir` and creates files there. It is recommended to add `[post_dir]/partial` to `.gitignore`
+
+##### Markdown Extensions
+
+Mkdocs supports configuring  [markdown_extensions](https://www.mkdocs.org/user-guide/configuration/#markdown_extensions) to use [paths relative to current file](https://www.mkdocs.org/user-guide/configuration/#paths-relative-to-the-current-file-or-site).
+
+It does not work for `docs_package` handled pages as they are generated from `mkdocs` perspective thus and not have path on file system, while `markdown_extensions` like `pymdownx.snippets` lookup files on file system.     
+
+To have same logic as for files statically by mkdocs, if `docs_package` is used with `mkdocs.yml` it extends config with `!docs_package_relative` tag, that expands to path of current page if it is handled with teh plugin. 
+
+``` yaml
+markdown_extensions:
+  - pymdownx.snippets:
+      base_path: 
+        # Lookup snippet files path as relative to mkdocs.yml
+        - !relative $config_dir  
+        # Lookup snippet files path as relative to mkdocs 
+        # docs_package handled document
+        - !docs_package_relative  
+```
+
+Snippet files must reside in directory passed as source directory when creating [docs package](#docs)
+
+!!! Note
+    At the moment such files are served over http. In later releases CLI would be extended to let exclusion of some packaged files from being served with http  
+
+
+
+
+
 
 ### Partial Docs
 
@@ -167,7 +197,7 @@ If [blogs](https://squidfunk.github.io/mkdocs-material/plugins/blog/) plugin fro
 
 ## Creating Packages
 
-### Docs Package
+### Docs
 
 Docs package may be created from directory with `mkdocs-partial package` CLI command:
 
@@ -252,7 +282,7 @@ and inject content to `/my-docs` of the site (unless overridden within `mkdocs.y
 
 If packaged directory contains `requirements.txt`, built package will have dependencies it defines.
 
-### Site Package
+### Site
 
 Site package is package with mkdocs config and overrides that is to be shared or accumulate all docs packages for deployment.
 

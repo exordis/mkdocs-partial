@@ -6,8 +6,9 @@ import inspect
 import logging
 import os
 import re
+import tempfile
 from pathlib import Path
-from typing import Callable
+from typing import Callable, overload
 
 import frontmatter
 from mkdocs import plugins
@@ -15,10 +16,11 @@ from mkdocs.config import Config, config_options
 from mkdocs.config.defaults import MkDocsConfig
 from mkdocs.livereload import LiveReloadServer
 from mkdocs.plugins import BasePlugin, PrefixedLogger, get_plugin_logger
-from mkdocs.structure.files import File, Files
+from mkdocs.structure.files import File, Files, InclusionLevel
 from mkdocs.structure.nav import Navigation
 from mkdocs.structure.pages import Page
 from mkdocs.utils.templates import TemplateContext
+from yaml import Loader
 
 import mkdocs_partial
 from mkdocs_partial import (
@@ -31,6 +33,45 @@ from mkdocs_partial import (
 )
 from mkdocs_partial.integrations.material_blog_integration import MaterialBlogsIntegration
 from mkdocs_partial.mkdcos_helpers import get_mkdocs_plugin, get_mkdocs_plugin_name, normalize_path
+
+Loader.add_constructor('!docs_package_relative', lambda loader, node: DocsPackageDirPlaceholder())
+
+
+class DocsPackageDirPlaceholder(os.PathLike):
+
+    def __fspath__(self) -> str:
+        """Can be used as a path."""
+        if DocsPackagePlugin.current is None:
+            non_existing_path = os.path.join(tempfile.gettempdir(), "DefinitelyNonExistingDirectory_123456789")
+            assert not os.path.exists(non_existing_path)  # Ensure it does not exist
+            return non_existing_path
+        return DocsPackagePlugin.current.docs_path
+
+    def __str__(self) -> str:
+        """Can be converted to a string to obtain the current class."""
+        return self.__fspath__()
+
+
+class DocsPackageFile(File):
+
+    @classmethod
+    def generated(cls, config: MkDocsConfig, src_uri: str, *, content: str | bytes | None = None,
+                  abs_src_path_override: str | None = None,
+                  inclusion: InclusionLevel = InclusionLevel.UNDEFINED) -> DocsPackageFile:
+        file = super().generated(config, src_uri, content=content, inclusion=inclusion)
+        file.__abs_src_path_override = abs_src_path_override
+        # file.__dict__.pop('abs_src_path', None)
+        # vars(file).pop('abs_src_path', None)
+        # file.src_path=os.path.relpath(abs_src_path_override, config.docs_dir)
+        return file
+
+    # @property
+    # def abs_src_path(self) -> str | None:
+    #     return self.__abs_src_path_override
+    #
+    # @abs_src_path.setter
+    # def abs_src_path(self, value: str):
+    #     pass
 
 
 class DocsPackagePluginConfig(Config):
@@ -53,12 +94,14 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
     H1_TITLE = re.compile(r"^#[^#]", flags=re.MULTILINE)
     TITLE = re.compile(r"^#", flags=re.MULTILINE)
 
+    current: DocsPackagePlugin = None
+
     @property
     def directory(self):
         return self.__directory
 
     def __init__(
-        self, directory=None, edit_url_template=None, title=None, blog_categories=None, version: str = None
+            self, directory=None, edit_url_template=None, title=None, blog_categories=None, version: str = None
     ):  # pylint: disable=too-many-positional-arguments
         self.__version = version
         self.__title = title
@@ -79,6 +122,10 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
     @property
     def version(self):
         return self.__version
+
+    @property
+    def docs_path(self):
+        return self.__docs_path
 
     def on_startup(self, *, command, dirty):
         # Mkdocs handles plugins with on_startup singletons
@@ -133,7 +180,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             macros_plugin.register_docs_package(self.__plugin_name, self)
 
     def on_serve(
-        self, server: LiveReloadServer, /, *, config: MkDocsConfig, builder: Callable
+            self, server: LiveReloadServer, /, *, config: MkDocsConfig, builder: Callable
     ) -> LiveReloadServer | None:
         if not self.config.enabled:
             return server
@@ -187,7 +234,8 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             md.metadata["title"] = self.__title
         md.metadata["partial"] = True
         md.metadata["docs_package"] = self.__plugin_name
-        file = File.generated(config=config, src_uri=src_uri, content=frontmatter.dumps(md))
+        file: File = DocsPackageFile.generated(config=config, src_uri=src_uri, content=frontmatter.dumps(md),
+                                               abs_src_path_override=file_path)
         files.append(file)
         self.__files.append(file)
 
@@ -200,7 +248,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             redirects_plugin.add_redirects(files, file, normalized_redirects, config)
 
     def on_page_context(
-        self, context: TemplateContext, /, *, page: Page, config: MkDocsConfig, nav: Navigation
+            self, context: TemplateContext, /, *, page: Page, config: MkDocsConfig, nav: Navigation
     ) -> TemplateContext | None:
         if page.file in self.__files:
             path = os.path.relpath(page.file.src_path, self.config.directory)
@@ -237,3 +285,13 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
 
     def get_edit_url_template_path(self, path):
         return normalize_path(os.path.relpath(path, self.__directory))
+
+    def on_pre_page(self, page: Page, /, *, config: MkDocsConfig, files: Files) -> Page | None:
+        if page.file in self.__files:
+            DocsPackagePlugin.current=self
+        return page
+
+    def on_post_page(self, output: str, /, *, page: Page, config: MkDocsConfig) -> str | None:
+        if page.file in self.__files:
+            DocsPackagePlugin.current=None
+        return output
