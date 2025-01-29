@@ -159,11 +159,11 @@ If [blogs](https://squidfunk.github.io/mkdocs-material/plugins/blog/) plugin fro
 
 ##### Markdown Extensions
 
-Mkdocs supports configuring  [markdown_extensions](https://www.mkdocs.org/user-guide/configuration/#markdown_extensions) to use [paths relative to current file](https://www.mkdocs.org/user-guide/configuration/#paths-relative-to-the-current-file-or-site).
+Mkdocs supports configuring  [markdown_extensions](https://www.mkdocs.org/user-guide/configuration/#markdown_extensions) to use [paths relative docs_dir](https://www.mkdocs.org/user-guide/configuration/#paths-relative-to-the-current-file-or-site).
 
-It does not work for `docs_package` handled pages as they are generated from `mkdocs` perspective thus and not have path on file system, while `markdown_extensions` like `pymdownx.snippets` lookup files on file system.     
+It does not work for `docs_package` handled pages as they are generated from `mkdocs` perspective thus and not have path on file system path relative to `docs_dir`.     
 
-To have same logic as for files statically by mkdocs, if `docs_package` is used with `mkdocs.yml` it extends config with `!docs_package_relative` tag, that expands to path of current page if it is handled with the plugin. 
+To have same logic as for files statically by mkdocs, if `docs_package` is used with `mkdocs.yml` it extends config with `!docs_package_relative` tag, that expands to path of current page package root (if page is not handled by `docs_package` it resolves to non-existing directory). 
 
 ``` yaml
 markdown_extensions:
@@ -171,8 +171,7 @@ markdown_extensions:
       base_path: 
         # Lookup snippet files path as relative to mkdocs.yml
         - !relative $config_dir  
-        # Lookup snippet files path as relative to mkdocs 
-        # docs_package handled document
+        # Lookup snippet files path as relative to docs_package root
         - !docs_package_relative  
 ```
 
