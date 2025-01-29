@@ -16,3 +16,4 @@ uri
 url
 codebase
 markdown_extensions
+docs_dir
