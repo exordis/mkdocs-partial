@@ -1,3 +1,7 @@
+---
+description: Partial Documentation
+---
+
 # Partial Documentation
 
 Partial documentation is a framework that allows writers of [MkDocs](https://www.mkdocs.org/)-based documentation to deliver parts of documentation as Python packages, rather than placing all documentation in a single codebase.
