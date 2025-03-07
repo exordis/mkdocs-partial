@@ -1,4 +1,5 @@
 ---
+title: Partial Documentation
 description: Partial Documentation
 ---
 
