@@ -1,6 +1,6 @@
 ---
 title: Partial Documentation
-description: Partial Documentation
+description: Partial documentation mkdocs plugin and tools
 ---
 
 # Partial Documentation
@@ -84,7 +84,12 @@ When injecting content the `docs_package` plugin does not create any files direc
 - `directory` - directory of the site documentation to inject the content to. Should be relative path to `docs_dir`. Use  empty string to inject content to the root of the site.
 - `name` - name used to reference the package. By default, MkDocs assigns the plugin's entry point name, with #N added if there are multiple instances. For example if `docs_package` is registered twice, the default names would be `docs_package #1` and `docs_package #2`.
 - `edit_url_template` - template for the edit URL. Each injected page will have an `edit_url` based on this template, which can be used to show `edit` links (e.g., for editing the original file on GitHub or GitLab). This must be a string with `{path}` as a placeholder, replaced by the path relative to `docs_path`.  
-For example, in GitLab, it could be `"${CI_PROJECT_URL}/-/edit/${CI_COMMIT_BRANCH}/{path}?ref_type=heads"`.
+  For example, for GitLab, it could be `"${CI_PROJECT_URL}/-/edit/${CI_COMMIT_BRANCH}/{path}?ref_type=heads"`.
+- `title` - title override for package root `index.md`. 
+
+!!! Note
+
+    package root `index.md` title applied also to directory where package is injected.   
 
 #### Basic usage
 
@@ -240,7 +245,7 @@ options:
                         relative to mkdocs `doc_dir`. Pass empty string to
                         inject files directly to mkdocs `docs_dir`Default -
                         `--source-dir` value directory name
-  --title TITLE         Override title if defined in package root index.md
+  --title TITLE         Title override for package root index.md
   --blog-categories BLOG_CATEGORIES
                         `/` separated list of categories to be prepended to
                         defined in blog posts of the package. Empty by default
