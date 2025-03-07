@@ -89,7 +89,7 @@ When injecting content the `docs_package` plugin does not create any files direc
 
 !!! Note
 
-    package root index.md title applied also to directory where package is injected.   
+    package root `index.md` title applied also to directory where package is injected.   
 
 #### Basic usage
 
