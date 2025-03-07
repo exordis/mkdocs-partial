@@ -59,6 +59,7 @@ class DocsPackagePluginConfig(Config):
     edit_url_template = config_options.Optional(config_options.Type(str))
     name = config_options.Optional(config_options.Type(str))
     blog_categories = config_options.Optional(config_options.Type(str))
+    title = config_options.Optional(config_options.Type(str))
 
     def patch(self, patch: DocsPackagePluginConfig):
         if patch.docs_path is not None:
@@ -96,6 +97,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             self.__blog_categories = self.__title
         if self.__blog_categories is None:
             self.__blog_categories = self.__directory
+        self.__index_file = None
 
     @property
     def version(self):
@@ -136,6 +138,9 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
             self.__plugin_name = self.config.name
         else:
             self.__plugin_name = get_mkdocs_plugin_name(self, config)
+
+        if self.config.title is not None:
+            self.__title = self.config.title
 
         logger = logging.getLogger(f"mkdocs.plugins.{__name__}")
         self.__log = PrefixedLogger(f"partial_docs[{self.__plugin_name}]", logger)
@@ -214,6 +219,8 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         md.metadata["docs_package"] = self.__plugin_name
         file: File = File.generated(config=config, src_uri=src_uri, content=frontmatter.dumps(md))
         files.append(file)
+        if is_index and self.__title is not None and not existing_file:
+            self.__index_file = file
         self.__files.append(file)
 
         redirects_plugin = get_mkdocs_plugin(REDIRECTS_ENTRYPOINT_NAME, REDIRECTS_ENTRYPOINT_SHIM, config)
@@ -223,6 +230,16 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
                 for redirect in md.metadata.get("redirects", [])
             ]
             redirects_plugin.add_redirects(files, file, normalized_redirects, config)
+
+    def on_nav(self, nav: Navigation, /, *, config: MkDocsConfig, files: Files) -> Navigation | None:
+        if self.__index_file is None:
+            return nav
+        for file in files:
+            if file.page and file in self.__files and file == self.__index_file:
+                if file.page.parent is not None:
+                    file.page.parent.title = self.__title
+                self.__index_file = None
+        return nav
 
     def on_page_context(
         self, context: TemplateContext, /, *, page: Page, config: MkDocsConfig, nav: Navigation

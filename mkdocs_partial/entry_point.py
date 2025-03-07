@@ -42,7 +42,7 @@ def run():
     package_command.add_argument(
         "--title",
         required=False,
-        help="Override title if defined in package root index.md",
+        help="Title override for package root index.md",
     )
     package_command.add_argument(
         "--blog-categories",
