@@ -7,4 +7,4 @@ Usage Scenarios:
 - **Synchronize the look and feel of multiple sites:** When several documentation sites need a unified look and feel, the shared site configuration and UI customizations can be distributed, even though the content differs.
 - **Bypass the MkDocs requirement to keep all content in the docs_dir:** If the docs_dir constraint is limiting, documentation content from outside docs_dir can be linked into the site.
 
-`Documentation <https://docs.exordis.com/Partial%20Documentation/>`_
+`Documentation <https://docs.exordis.com/partial-documentation/>`_
