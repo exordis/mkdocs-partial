@@ -24,7 +24,7 @@ include:
     inputs:
       github_sync: true
       pypi_public_registry: pypi
-      docker_public_registry_source: https://github.com/exordis/exordis/mkdocs-partial
+      docker_public_registry_source: https://github.com/exordis/mkdocs-partial
       docker_internal_registry_source: https://github.com/exordis/sponsors-mkdocs-partial
       final_target: "final-pyinstaller"
       
