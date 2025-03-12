@@ -278,7 +278,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         return path, is_index
 
     def get_edit_url_template_path(self, path):
-        return normalize_path(os.path.relpath(path, self.__directory))
+        return normalize_path(os.path.relpath(path, self.__directory.lstrip("/")))
 
     def on_pre_page(self, page: Page, /, *, config: MkDocsConfig, files: Files) -> Page | None:
         if page.file in self.__files:
