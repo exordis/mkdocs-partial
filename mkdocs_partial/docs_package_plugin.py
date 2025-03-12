@@ -245,8 +245,9 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         self, context: TemplateContext, /, *, page: Page, config: MkDocsConfig, nav: Navigation
     ) -> TemplateContext | None:
         if page.file in self.__files:
-            path = os.path.relpath(page.file.src_path, self.config.directory)
-            path = self.get_edit_url_template_path(path)
+            # directory = "" if self.config.directory is None else self.config.directory.lstrip('/').lstrip('\\')
+            # path = os.path.relpath(normalize_path(page.file.src_path), normalize_path(directory))
+            path = self.get_edit_url_template_path(page.file.src_path)
         else:
             path = self.__blog_integration.get_src_path(page.file.src_path)
         if self.__edit_url_template is not None and path is not None:
@@ -278,7 +279,11 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         return path, is_index
 
     def get_edit_url_template_path(self, path):
-        return normalize_path(os.path.relpath(path, self.__directory.lstrip("/")))
+        directory = "" if self.__directory is None else self.__directory.lstrip("/").lstrip("\\")
+        path = os.path.relpath(normalize_path(path), normalize_path(directory))
+
+        return path
+        # return normalize_path(os.path.join(self._DocsPackagePlugin__directory, path))
 
     def on_pre_page(self, page: Page, /, *, config: MkDocsConfig, files: Files) -> Page | None:
         if page.file in self.__files:
