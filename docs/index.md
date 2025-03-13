@@ -51,7 +51,7 @@ Entrypoint is mkdocs-partial. See [Creating Packages](#creating-packages) for ar
 === "Specific version"
 
     ```bash
-    pip install git+https://github.com/exordis/mkdocs-partial@1.9.1
+    pip install git+https://github.com/exordis/mkdocs-partial@{{' package_version() '}}
     ```
 
 === "Latest"
@@ -114,11 +114,16 @@ plugins:
 
 If [mkdocs-macros](https://mkdocs-macros-plugin.readthedocs.io/) plugin is detected `docs_package` will register macros 
 
-###### `package_link(path, name)` 
+###### `package_link` 
 
 Constructs link to the content injected by referenced package.
 
 **Arguments**
+
+
+`path` 
+
+:   path within the package.
 
 `name` 
 
@@ -126,9 +131,6 @@ Constructs link to the content injected by referenced package.
     **default:** package managing current page. Fails if current page is not managed with  `docs_package`
 
 
-`path` 
-
-:   path within the package.
 
 
 **Samples**
@@ -149,7 +151,7 @@ generates link for  `getting-started/faq.md` within current package
 
 
 
-###### `package_version(name)` 
+###### `package_version` 
 
 Renders version of the package.
 
@@ -164,10 +166,17 @@ Renders version of the package.
 **Samples**
 
 ```jinja
-{{'{{'}} package_version {{'}}'}} 
+{{'{{'}} package_version() {{'}}'}} 
 ```
 
-generates version of the packages managing current page. Within current page it is `mkdocs-material` and generated version will be `{{ package_version }}`
+generates version of the packages managing current page. Within current page it is `mkdocs-material` and generated version will be `{{'{{ package_version() }}'}}`
+
+```jinja
+{{'{{'}} package_version("my-package") {{'}}'}} 
+{{'{{'}} "my-package" | package_version {{'}}'}} 
+```
+
+generates version of the specific packages.
 
  
 
