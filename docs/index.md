@@ -172,8 +172,8 @@ Renders version of the package.
 generates version of the packages managing current page. Within current page it is `mkdocs-material` and generated version will be `{{ package_version() }}`
 
 ```jinja
-{{'{{'}} package_version("my-package") {{'}}'}} 
-{{'{{'}} "my-package" | package_version {{'}}'}} 
+{{'{{ package_version("my-package") }}'}} 
+{{'{{ "my-package" | package_version }}'}} 
 ```
 
 generates version of the specific packages.
