@@ -245,8 +245,6 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         self, context: TemplateContext, /, *, page: Page, config: MkDocsConfig, nav: Navigation
     ) -> TemplateContext | None:
         if page.file in self.__files:
-            # directory = "" if self.config.directory is None else self.config.directory.lstrip('/').lstrip('\\')
-            # path = os.path.relpath(normalize_path(page.file.src_path), normalize_path(directory))
             path = self.get_edit_url_template_path(page.file.src_path)
         else:
             path = self.__blog_integration.get_src_path(page.file.src_path)
