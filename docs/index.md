@@ -51,7 +51,7 @@ Entrypoint is mkdocs-partial. See [Creating Packages](#creating-packages) for ar
 === "Specific version"
 
     ```bash
-    pip install git+https://github.com/exordis/mkdocs-partial@{{' package_version() '}}
+    pip install git+https://github.com/exordis/mkdocs-partial@{{ package_version() }}
     ```
 
 === "Latest"
@@ -169,7 +169,7 @@ Renders version of the package.
 {{'{{'}} package_version() {{'}}'}} 
 ```
 
-generates version of the packages managing current page. Within current page it is `mkdocs-material` and generated version will be `{{'{{ package_version() }}'}}`
+generates version of the packages managing current page. Within current page it is `mkdocs-material` and generated version will be `{{ package_version() }}`
 
 ```jinja
 {{'{{'}} package_version("my-package") {{'}}'}} 
