@@ -112,19 +112,64 @@ plugins:
 
 ##### Macros
 
-If [mkdocs-macros](https://mkdocs-macros-plugin.readthedocs.io/) plugin is detected `docs_package` will register `package_link` macros taking package name as single argument and constructing link to the content injected by referenced package:
+If [mkdocs-macros](https://mkdocs-macros-plugin.readthedocs.io/) plugin is detected `docs_package` will register macros 
+
+###### `package_link(path, name)` 
+
+Constructs link to the content injected by referenced package.
+
+**Arguments**
+
+`name` 
+
+:   name of the package.
+    **default:** package managing current page. Fails if current page is not managed with  `docs_package`
+
+
+`path` 
+
+:   path within the package.
+
+
+**Samples**
+
 ```jinja
 [Injected page]({{'{{'}} "getting-started/faq.md" | package_link("injected2") {{'}}'}} )
 ```
-with config above will generate `injected_dir2/getting-started/faq.md` link
+generates `injected_dir2/getting-started/faq.md` link
 
-If package name argument is not passed to the macros, for pages managed with `docs_package` package of the page is used as default, for other pages it fails:
 ```jinja
 [Injected page from the same package]({{'{{'}} "getting-started/faq.md" | package_link {{'}}'}} )
 ```
+generates link for  `getting-started/faq.md` within current package
 
 !!! Note
     [mkdocs](https://www.mkdocs.org/) recommends having only relative to `docs_dir`  URIs. With `package_link` macro changing inject directory of plugin does not require any changes in content  
+
+
+
+
+###### `package_version(name)` 
+
+Renders version of the package.
+
+**Arguments**
+
+`name` 
+
+:   name of the package.
+    **default:** package managing current page. Fails if current page is not managed with  `docs_package`
+
+
+**Samples**
+
+```jinja
+{{'{{'}} package_version {{'}}'}} 
+```
+
+generates version of the packages managing current page. Within current page it is `mkdocs-material` and generated version will be `{{ package_version }}`
+
+ 
 
 ##### Redirects
 
