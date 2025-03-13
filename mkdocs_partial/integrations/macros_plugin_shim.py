@@ -33,7 +33,7 @@ class MacrosPluginShim(MacrosPlugin):
 
     def package_version(self, name: str = None):
         page = self.page
-        if name is None:
+        if name is None or name == "":
             name = page.meta.get("docs_package", None)
         if name is None:
             raise LookupError(
@@ -50,4 +50,5 @@ class MacrosPluginShim(MacrosPlugin):
     def on_config(self, config: MkDocsConfig):
         self.filter(self.package_link)
         self.filter(self.package_version)
-        return super().on_config(config)
+        super().on_config(config)
+        self.env.globals.update({"package_version": self.package_version})
