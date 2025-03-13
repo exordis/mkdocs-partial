@@ -80,7 +80,7 @@ class DocsPackagePlugin(BasePlugin[DocsPackagePluginConfig]):
         return self.__directory
 
     def __init__(
-        self, directory=None, edit_url_template=None, title=None, blog_categories=None, version: str = None
+        self, directory=None, edit_url_template=None, title=None, blog_categories=None, version: str = "0.0.0"
     ):  # pylint: disable=too-many-positional-arguments
         self.__version = version
         self.__title = title
