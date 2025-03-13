@@ -31,6 +31,23 @@ class MacrosPluginShim(MacrosPlugin):
             raise LookupError("`package_link` may be used only on pages managed with `docs_package` plugin")
         raise LookupError(f"Package {name} is not installed")
 
+    def package_version(self, name: str = None):
+        page = self.page
+        if name is None:
+            name = page.meta.get("docs_package", None)
+        if name is None:
+            raise LookupError(
+                "name arg is mandatory for `package_version` when used on pages which are "
+                "not managed with `docs_package` plugin"
+            )
+
+        package = self.__docs_packages.get(name, None)
+        if package is None:
+            raise LookupError(f"Package {name} is not installed")
+
+        return package.version
+
     def on_config(self, config: MkDocsConfig):
         self.filter(self.package_link)
+        self.filter(self.package_version)
         return super().on_config(config)
