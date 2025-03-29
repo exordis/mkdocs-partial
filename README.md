@@ -12,4 +12,4 @@ Usage Scenarios:
 - **Bypass the [MkDocs](https://www.mkdocs.org/) requirement to keep all content in the `docs_dir`:** If the `docs_dir` constraint is limiting, documentation content from outside `docs_dir` can be linked into the site.
 
 
-[Documentation](https://docs.exordis.com/partial-documentation/)
+[Documentation](https://docs.exordis.com/documentation/partial-documentation/)
